@@ -1,16 +1,9 @@
 from aiogram import F, Router
-from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
-
 from keyboard.keyboard import show_vip_keyboard, back_vip_keyboard
+from keyboard.keyboard_builder import make_row_inline_keyboards
 
 router = Router()
-
-@router.callback_query(F.data == 'vip_data')
-async def show_vip_keyboard_func(callback: CallbackQuery):
-    await callback.answer()
-    await callback.message.edit_text('Выберите нужную функцию:', reply_markup=show_vip_keyboard)
-
 
 
 # Выводит всю информацию про Рубли за отзывы
@@ -29,7 +22,7 @@ async def show_vip_data_info_func(callback: CallbackQuery):
             """
     await callback.answer('')
 
-    await callback.message.edit_text(f'Все важные правила которые надо запомнить при использования функции Кешбека!\n{description}', reply_markup=back_vip_keyboard)
+    await callback.message.edit_text(f'Все важные правила которые надо запомнить при использования функции Кешбека!\n{description}', reply_markup=make_row_inline_keyboards(back_vip_keyboard))
 
 
 
@@ -54,4 +47,4 @@ async def show_vip_data_info_func(callback: CallbackQuery):
 @router.callback_query(F.data == 'back_show_vip_data')
 async def back_vip_keyboard_func(callback: CallbackQuery):
     await callback.answer()
-    await callback.message.edit_text('Выберите ваше действие: ', reply_markup=show_vip_keyboard)
+    await callback.message.edit_text('Выберите ваше действие: ', reply_markup=make_row_inline_keyboards(show_vip_keyboard))

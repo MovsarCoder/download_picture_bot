@@ -6,6 +6,7 @@ from keyboard.keyboard import more_keyboard
 from aiogram import F, Router
 import asyncio
 from States.state import *
+from keyboard.keyboard_builder import make_row_inline_keyboards
 
 router = Router()
 
@@ -62,7 +63,7 @@ async def download_picture_func_fsm(message: Message, state: FSMContext):
                                                                           f'<b>Ссылка на товар:</b> <i>{message.text}</i>\n'
                                                                           f'<b>Отзывы:</b> <i>{feedbacks}</i>\n\n'
                                                                           f'<b>Описание:</b> <i>{desc}</i>',
-                                       reply_markup=more_keyboard, disable_web_page_preview=True)
+                                       reply_markup=make_row_inline_keyboards(more_keyboard), disable_web_page_preview=True)
         await state.clear()
 
     except Exception as e:
