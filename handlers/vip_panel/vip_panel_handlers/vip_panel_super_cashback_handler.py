@@ -23,7 +23,7 @@ async def feedback_cashback_data_100(callback: CallbackQuery, state: FSMContext)
 async def feedback_super_cashback_requests_data(callback: CallbackQuery, state: FSMContext):
     await callback.answer('')
 
-    await callback.message.answer('Введите название товара для поиска <b>Выгодного кешбека</b>')
+    await callback.message.answer('Введите название товара для поиска <b>Выгодного кешбэка</b>')
     await state.set_state(WildberriesCashback.get_name_super_cashback_product)
 
 @router.message(WildberriesCashback.get_name_super_cashback_product)
@@ -66,5 +66,5 @@ async def more_new_xlsx_super_product_data(callback: CallbackQuery, state: FSMCo
     await callback.answer()
     await state.clear()
 
-    await callback.message.answer('Введите название товара для поиска <b>Выгодного кешбека</b>')
+    await callback.message.answer('Введите название товара для поиска <b>Выгодного кешбэка</b>')
     await state.set_state(WildberriesCashback.get_name_super_cashback_product)
