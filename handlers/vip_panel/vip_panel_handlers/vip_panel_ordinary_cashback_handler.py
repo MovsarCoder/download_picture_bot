@@ -16,7 +16,7 @@ async def send_name_product_func(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await callback.answer('')
 
-    await callback.message.answer('Введите название товара для поиска <b>кешбэка</b>: ')
+    await callback.message.answer('Введите название товара для поиска <b>Кешбэка</b>: ')
     await state.set_state(WildberriesCashback.get_name_product)
 
 
@@ -58,5 +58,5 @@ async def get_name_product_func(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'more_new_xlsx_ordinary_product_data')
 async def more_new_xlsx_func(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.message.answer('Введите название товара для поиска кешбэка: ')
+    await callback.message.answer('Введите название товара для поиска <b>Кешбэка</b>')
     await state.set_state(WildberriesCashback.get_name_product)
