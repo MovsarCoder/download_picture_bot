@@ -15,4 +15,4 @@ async def show_vip_keyboard_func(callback: CallbackQuery):
 @router.callback_query(F.data == 'more_stop_vip_panel')
 async def more_send_stop(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.message.edit_text('Выберите функцию', reply_markup=make_row_inline_keyboards(show_vip_keyboard))
+    await callback.message.answer('Выберите функцию', reply_markup=make_row_inline_keyboards(show_vip_keyboard))

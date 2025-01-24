@@ -56,7 +56,7 @@ more_keyboard_video = [
 show_vip_keyboard = [
     ("Информация", "show_vip_data_info"),
     ("Кешбек", "feedback_cashback_data"),
-    ("Сто процентный кешбек", "feedback_cashback_data_100"),
+    ("Выгодный кешбек", "feedback_cashback_data_100"),
     ("🔙Назад", "more_stop"),
 ]
 
@@ -70,7 +70,6 @@ more_xlsx_product_keyboard = [
 
 super_feedbacks_show_keyboard = [
     ("По запросу", "feedback_super_cashback_requests_data"),
-    ("Все товары", "all_feedback_super_cashback_requests_data"),
     ("🔙Назад", "more_stop_vip_panel"),
 ]
 

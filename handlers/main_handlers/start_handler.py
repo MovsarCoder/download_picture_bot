@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKe
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from keyboard.keyboard import *
-from handlers.admin_panel.admin_panel_functions.admin_help_func import *
+from handlers.admin_panel.admin_help_func import *
 from keyboard.keyboard_builder import make_row_inline_keyboards
 
 router = Router()
@@ -15,7 +15,7 @@ async def handle_subscription_check(message: Message, groups):
 
     list_admins = checked_admin_list()
     if message.from_user.id in list_admins:
-        await message.answer('Выберите функцию', reply_markup=make_row_inline_keyboards(keyboard_main_admin))
+        await message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main_admin))
         return
 
     for i in groups:
@@ -33,7 +33,7 @@ async def handle_subscription_check(message: Message, groups):
     if keyboard:  # Если есть каналы для подписки
         await message.answer('Подпишитесь на все каналы, чтобы продолжить пользоваться ботом!', reply_markup=keyboard_subscribe)
     else:
-        await message.answer('Выберите функцию', reply_markup=make_row_inline_keyboards(keyboard_main))
+        await message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main))
 
 
 @router.message(CommandStart())
@@ -56,9 +56,9 @@ async def more_send_stop(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     list_admins = checked_admin_list()
     if callback.from_user.id in list_admins:
-        await callback.message.edit_text('Выберите функцию', reply_markup=make_row_inline_keyboards(keyboard_main_admin))
+        await callback.message.edit_text('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main_admin))
     else:
-        await callback.message.edit_text('Выберите функцию', reply_markup=make_row_inline_keyboards(keyboard_main))
+        await callback.message.edit_text('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main))
 
 
 

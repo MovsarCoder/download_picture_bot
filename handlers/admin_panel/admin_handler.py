@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from keyboard.keyboard import *
 from States.state import *
-from handlers.admin_panel.admin_panel_functions.admin_help_func import *
+from handlers.admin_panel.admin_help_func import *
 from keyboard.keyboard_builder import make_row_inline_keyboards
 
 router = Router()

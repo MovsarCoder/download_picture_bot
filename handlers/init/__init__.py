@@ -10,8 +10,8 @@ router.include_router(start_handler)
 
 
 
-from handlers.download_puctire_and_video.download_picture_wb.download_picture_handlers.download_picture_handler import router as picture_handler
-from handlers.download_puctire_and_video.download_video_wb.download_video_handlers.download_video_handler import router as video_handler
+from handlers.download_puctire_and_video.download_picture_wb.download_picture_handler import router as picture_handler
+from handlers.download_puctire_and_video.download_video_wb.download_video_handler import router as video_handler
 router.include_router(picture_handler)
 router.include_router(video_handler)
 
@@ -20,7 +20,7 @@ router.include_router(video_handler)
 
 
 
-from handlers.admin_panel.admin_panel_handlers.admin_handler import router as admin_handler
+from handlers.admin_panel.admin_handler import router as admin_handler
 router.include_router(admin_handler)
 
 

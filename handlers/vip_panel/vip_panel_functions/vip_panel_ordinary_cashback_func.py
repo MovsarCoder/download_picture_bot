@@ -2,16 +2,16 @@ import pandas as pd
 import requests
 
 
-def create_excel(filename):
+async def create_csv(filename):
     # Создаем DataFrame с заголовками
     df = pd.DataFrame(columns=['id', 'name', 'price', 'url', 'brand', 'feedbackPoints', 'supplier', 'supplierRating', 'entity'])
-    df.to_excel(f'{filename}.xlsx', index=False)
+    df.to_csv(f'{filename}.csv', index=False, sep=',')
 
 
-async def save_to_excel(product_id, product_name, product_price, product_url, product_brand, feedback_points, supplier, supplier_rating, entity, filename):
+async def save_to_csv(product_id, product_name, product_price, product_url, product_brand, feedback_points, supplier, supplier_rating, entity, filename):
     # Загружаем существующий файл или создаем новый DataFrame
     try:
-        df = pd.read_excel(f'{filename}.xlsx')
+        df = pd.read_csv(f'{filename}.csv', sep=',')
     except FileNotFoundError:
         df = pd.DataFrame(columns=['id', 'name', 'price', 'url', 'brand', 'feedbackPoints', 'supplier', 'supplierRating', 'entity'])
 
@@ -36,10 +36,9 @@ async def save_to_excel(product_id, product_name, product_price, product_url, pr
     # Используем pd.concat для добавления новой строки
     df = pd.concat([df, pd.DataFrame([new_row])])
 
-    # Сохраняем DataFrame обратно в Excel файл без пустых строк
+    # Сохраняем DataFrame обратно в CSV файл без пустых строк
     df.dropna(how='all', inplace=True)  # Удаляем пустые строки, если они есть
-    df.to_excel(f'{filename}.xlsx', index=False)
-
+    df.to_csv(f'{filename}.csv', index=False, sep=',')
 
 
 async def create_params(page: int, search_item: str):
@@ -72,7 +71,7 @@ async def fetch_total_results(search_item):
 
 
 async def main(search_item):
-    create_excel(search_item)  # Создаем Excel файл один раз в начале
+    await create_csv(search_item)  # Создаем CSV файл один раз в начале
     total_results = await fetch_total_results(search_item)
     total_pages = (total_results // 100) + 2
 
@@ -107,7 +106,7 @@ async def main(search_item):
                     supplier_rating = product.get('supplierRating', 0)
                     entity = product.get('entity', 'Неизвестно')
 
-                    await save_to_excel(product_id, name, price, create_url, product_brand, feedback_points, supplier, supplier_rating, entity, search_item)
+                    await save_to_csv(product_id, name, price, create_url, product_brand, feedback_points, supplier, supplier_rating, entity, search_item)
 
                 except Exception as e:
                     print(f"Ошибка в обработке продукта {product_id}: {e}")

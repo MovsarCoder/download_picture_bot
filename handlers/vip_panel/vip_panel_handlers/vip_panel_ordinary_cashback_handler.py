@@ -16,7 +16,7 @@ async def send_name_product_func(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await callback.answer('')
 
-    await callback.message.answer('Введите название товара для поиска кэшбэка: ')
+    await callback.message.answer('Введите название товара для поиска <b>Кешбека</b>: ')
     await state.set_state(WildberriesCashback.get_name_product)
 
 
@@ -26,7 +26,7 @@ async def get_name_product_func(message: Message, state: FSMContext):
     data = await state.get_data()
     name_product = data['name_product']
 
-    send_name_box = await message.answer(f'Файл по запросу: {name_product} собирается. Ожидайте!')
+    send_name_box = await message.answer(f'Файл по запросу: <b>{name_product}</b> собирается. Ожидайте!')
 
     start_time = time.time()
     await main(name_product)
@@ -34,22 +34,23 @@ async def get_name_product_func(message: Message, state: FSMContext):
     show_time = int(end_time - start_time)
 
     try:
-        with open(f'../this_bot/{name_product}.xlsx', 'rb') as file:
+        with open(f'../this_bot/{name_product}.csv', 'rb') as file:
             await message.bot.send_document(message.chat.id, BufferedInputFile(file.read(),
-                                                                                    filename=f'../this_bot/{name_product}.xlsx'),
-                                                 caption=f'✅ Работа завершена успешно\n'
-                                                         f'Затраченное время: {show_time} сек.\n'
-                                                         f'Админ: @timaadev\nЗапрос: "{name_product}"'
-                                                         f'\n\nВот ваш файл с данными.',
+                                                                                    filename=f'../this_bot/{name_product}.csv'),
+                                                 caption=f'✅ <b>Работа завершена успешно</b>\n'
+                                                         f'<b>Затраченное время:</b> <i>{show_time} сек.</i>\n'
+                                                         f'<b>Админ:</b> <i>@timaadev</i>\n'
+                                                         f'<b>Запрос:</b> "<i>{name_product}</i>"\n\n'
+                                                         f'Вот ваш файл с данными.',
                                                  reply_markup=make_row_inline_keyboards(more_xlsx_product_keyboard))
         await send_name_box.delete()
-        os.remove(f'../this_bot/{name_product}.xlsx')
+        os.remove(f'../this_bot/{name_product}.csv')
         await state.clear()
 
     except Exception as ex:
         await send_name_box.delete()
         await message.answer(f'Запрос не обработан по причине: {ex}')
-        os.remove(f'../this_bot/{name_product}.xlsx')
+        os.remove(f'../this_bot/{name_product}.csv')
 
     print('Файл успешно отправлен.')
 
