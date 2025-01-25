@@ -77,3 +77,7 @@ super_feedbacks_show_keyboard = [
 more_xlsx_super_product_keyboard = [
     ("Другой запрос", "more_new_xlsx_super_product_data")
 ]
+
+more_xlsx_all_product_keyboard = [
+    ('Другой запрос', 'more_all_product_data')
+]
