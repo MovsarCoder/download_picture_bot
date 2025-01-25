@@ -19,5 +19,6 @@ class NewsLetter(StatesGroup):
     text = State()
 
 class WildberriesCashback(StatesGroup):
-    get_name_product = State() # Обычный кешбек
+    get_name_product = State() # Обычный кешбэк
     get_name_super_cashback_product = State()
+    get_name_all_product = State()
