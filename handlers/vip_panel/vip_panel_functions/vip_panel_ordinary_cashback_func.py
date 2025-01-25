@@ -5,13 +5,13 @@ import requests
 async def create_csv(filename):
     # Создаем DataFrame с заголовками
     df = pd.DataFrame(columns=['id', 'name', 'price', 'url', 'brand', 'feedbackPoints', 'supplier', 'supplierRating', 'entity'])
-    df.to_csv(f'{filename}.csv', index=False, sep=',')
+    df.to_csv(f'{filename}.csv', index=False, sep=',', encoding='utf-8')
 
 
 async def save_to_csv(product_id, product_name, product_price, product_url, product_brand, feedback_points, supplier, supplier_rating, entity, filename):
     # Загружаем существующий файл или создаем новый DataFrame
     try:
-        df = pd.read_csv(f'{filename}.csv', sep=',')
+        df = pd.read_csv(f'{filename}.csv', sep=',', encoding='utf-8')
     except FileNotFoundError:
         df = pd.DataFrame(columns=['id', 'name', 'price', 'url', 'brand', 'feedbackPoints', 'supplier', 'supplierRating', 'entity'])
 
@@ -38,7 +38,7 @@ async def save_to_csv(product_id, product_name, product_price, product_url, prod
 
     # Сохраняем DataFrame обратно в CSV файл без пустых строк
     df.dropna(how='all', inplace=True)  # Удаляем пустые строки, если они есть
-    df.to_csv(f'{filename}.csv', index=False, sep=',')
+    df.to_csv(f'{filename}.csv', index=False, sep=',', encoding='utf-8')
 
 
 async def create_params(page: int, search_item: str):
