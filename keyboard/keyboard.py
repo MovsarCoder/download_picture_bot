@@ -56,8 +56,8 @@ more_keyboard_video = [
 show_vip_keyboard = [
     ("Информация", "show_vip_data_info"),
     ('Спарсить товар WB', 'pars_all_product'),
-    ("Кешбэк", "feedback_cashback_data"),
-    ("Выгодный кешбэк", "feedback_cashback_data_100"),
+    ("Спарсить товар с Кешбэком", "feedback_cashback_data"),
+    ("Спарсить товар с Выгодным кешбэком", "feedback_cashback_data_100"),
     ("🔙Назад", "more_stop"),
 ]
 
