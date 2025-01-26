@@ -72,7 +72,11 @@ async def fetch_total_results(search_item):
 async def main(search_item):
     await create_csv(search_item)  # Создаем CSV файл один раз в начале
     total_results = await fetch_total_results(search_item)
-    total_pages = (total_results // 100) + 2
+    # Полное количество страниц
+    # total_pages = (total_results // 100) + 2
+
+    # Спарсим только 20 страниц
+    total_pages = 20
 
     for page in range(1, total_pages):
         print(f'Страница: {page}')
