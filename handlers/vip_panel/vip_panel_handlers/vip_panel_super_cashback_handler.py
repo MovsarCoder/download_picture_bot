@@ -15,7 +15,7 @@ async def feedback_cashback_data_100(callback: CallbackQuery, state: FSMContext)
     await state.clear()
     await callback.answer('')
 
-    await callback.message.edit_text('Выберите опцию: ', reply_markup=make_row_inline_keyboards(super_feedbacks_show_keyboard))
+    await callback.message.answer('Выберите опцию: ', reply_markup=make_row_inline_keyboards(super_feedbacks_show_keyboard))
 
 
 
