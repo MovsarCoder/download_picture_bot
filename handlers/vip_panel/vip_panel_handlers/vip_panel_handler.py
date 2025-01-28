@@ -6,6 +6,7 @@ from keyboard.keyboard_builder import make_row_inline_keyboards
 
 router = Router()
 
+
 @router.callback_query(F.data == 'vip_data')
 async def show_vip_keyboard_func(callback: CallbackQuery):
     await callback.answer()
