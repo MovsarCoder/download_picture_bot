@@ -30,25 +30,6 @@ async def show_vip_data_info_func(callback: CallbackQuery):
     await callback.message.edit_text(f'Все важные правила которые надо запомнить при использования функции Кешбека!\n{description}', reply_markup=make_row_inline_keyboards(back_vip_keyboard))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @router.callback_query(F.data == 'back_show_vip_data')
 async def back_vip_keyboard_func(callback: CallbackQuery):
     await callback.answer()
