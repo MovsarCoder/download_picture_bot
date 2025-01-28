@@ -10,6 +10,7 @@ from handlers.vip_panel.vip_panel_functions.vip_panel_super_cashback_func import
 
 router = Router()
 
+
 @router.callback_query(F.data == 'feedback_cashback_data_100')
 async def feedback_cashback_data_100(callback: CallbackQuery, state: FSMContext):
     await state.clear()
@@ -18,13 +19,13 @@ async def feedback_cashback_data_100(callback: CallbackQuery, state: FSMContext)
     await callback.message.answer('Выберите опцию: ', reply_markup=make_row_inline_keyboards(super_feedbacks_show_keyboard))
 
 
-
 @router.callback_query(F.data == 'feedback_super_cashback_requests_data')
 async def feedback_super_cashback_requests_data(callback: CallbackQuery, state: FSMContext):
     await callback.answer('')
 
     await callback.message.answer('Введите название товара для поиска <b>Выгодного кешбэка</b>')
     await state.set_state(WildberriesCashback.get_name_super_cashback_product)
+
 
 @router.message(WildberriesCashback.get_name_super_cashback_product)
 async def feedback_super_cashback_requests_data_fsm(message: Message, state: FSMContext):
