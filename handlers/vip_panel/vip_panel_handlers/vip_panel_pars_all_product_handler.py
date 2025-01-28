@@ -10,6 +10,7 @@ from handlers.vip_panel.vip_panel_functions.vip_panel_pars_all_product_func impo
 
 router = Router()
 
+
 @router.callback_query(F.data == 'pars_all_product')
 async def pars_all_product_functions(callback: CallbackQuery, state: FSMContext):
     await state.clear()
@@ -17,6 +18,7 @@ async def pars_all_product_functions(callback: CallbackQuery, state: FSMContext)
 
     await callback.message.answer('Введите название товара который хотите найти')
     await state.set_state(WildberriesCashback.get_name_all_product)
+
 
 @router.message(WildberriesCashback.get_name_all_product)
 async def pars_all_product_fsm(message: Message, state: FSMContext):
