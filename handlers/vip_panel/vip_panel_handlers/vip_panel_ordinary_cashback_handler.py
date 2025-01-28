@@ -36,13 +36,13 @@ async def get_name_product_func(message: Message, state: FSMContext):
     try:
         with open(f'../this_bot/{name_product}.csv', 'rb') as file:
             await message.bot.send_document(message.chat.id, BufferedInputFile(file.read(),
-                                                                                    filename=f'../this_bot/{name_product}.csv'),
-                                                 caption=f'✅ <b>Работа завершена успешно</b>\n'
-                                                         f'<b>Затраченное время:</b> <i>{show_time} сек.</i>\n'
-                                                         f'<b>Админ:</b> <i>@timaadev</i>\n'
-                                                         f'<b>Запрос:</b> "<i>{name_product}</i>"\n\n'
-                                                         f'Вот ваш файл с данными.',
-                                                 reply_markup=make_row_inline_keyboards(more_xlsx_product_keyboard))
+                                                                               filename=f'../this_bot/{name_product}.csv'),
+                                            caption=f'✅ <b>Работа завершена успешно</b>\n'
+                                                    f'<b>Затраченное время:</b> <i>{show_time} сек.</i>\n'
+                                                    f'<b>Админ:</b> <i>@timaadev</i>\n'
+                                                    f'<b>Запрос:</b> "<i>{name_product}</i>"\n\n'
+                                                    f'Вот ваш файл с данными.',
+                                            reply_markup=make_row_inline_keyboards(more_xlsx_product_keyboard))
         await send_name_box.delete()
         os.remove(f'../this_bot/{name_product}.csv')
         await state.clear()
