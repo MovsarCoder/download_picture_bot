@@ -2,6 +2,7 @@ import re
 
 import validators
 
+
 def vol_video_host(e):
     if 0 <= e <= 11:
         t = "01"
