@@ -9,6 +9,7 @@ from keyboard.keyboard_builder import make_row_inline_keyboards
 
 router = Router()
 
+
 @router.message(Command('admin_panel'))
 @router.callback_query(F.data == 'admin_data')
 async def cmd_admin(callback_or_message: CallbackQuery | Message):
@@ -20,7 +21,9 @@ async def cmd_admin(callback_or_message: CallbackQuery | Message):
             await callback_or_message.reply('Выберите действие', reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
 
     else:
-        await callback_or_message.answer(f'{callback_or_message.from_user.full_name}({callback_or_message.from_user.id}) вы не можете получить доступ к Admin функциям данного бота! Так как не являетесь Admin!')
+        await callback_or_message.answer(
+            f'{callback_or_message.from_user.full_name}({callback_or_message.from_user.id}) вы не можете получить доступ к Admin функциям данного бота! Так как не являетесь Admin!')
+
 
 @router.callback_query(F.data == 'new_admin_data')
 async def new_admin_user_func(callback: CallbackQuery, state: FSMContext):
