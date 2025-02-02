@@ -1,7 +1,7 @@
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
-from handlers.download_puctire_and_video.download_video_wb.download_video_func import construct_host_v2
+from handlers.download_puctire_and_video.video.download_video_func import construct_host_v2
 from keyboard.keyboard import more_keyboard_video
 import requests
 from States.state import *
