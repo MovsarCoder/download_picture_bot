@@ -1,7 +1,7 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 
-from handlers.download_puctire_and_video.download_picture_wb.download_picture_func import get_product_info
+from handlers.download_puctire_and_video.picture.download_picture_func import get_product_info
 from keyboard.keyboard import more_keyboard
 from aiogram import F, Router
 import asyncio
