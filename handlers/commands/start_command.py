@@ -13,7 +13,7 @@ async def handle_subscription_check(message: Message, groups):
     keyboard = []
     not_subscribed_channels = []
 
-    list_admins = checked_admin_list()
+    list_admins = get_admin_list()
     if message.from_user.id in list_admins:
         await message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main_admin))
         return
@@ -40,11 +40,11 @@ async def handle_subscription_check(message: Message, groups):
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
 
-    groups = load_from_json()
-    a = get_anonim(message.from_user.id)
+    groups = load_groups()
+    a = user_exists(message.from_user.id)
 
     if not a:
-        write_user_id(message.from_user.id, message.from_user.username, message.from_user.last_name)
+        write_user(message.from_user.full_name, message.from_user.first_name, message.from_user.last_name, message.from_user.id)
         await handle_subscription_check(message, groups)
 
     else:
@@ -54,11 +54,11 @@ async def cmd_start(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'more_stop')
 async def more_send_stop(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    list_admins = checked_admin_list()
+    list_admins = get_admin_list()
     if callback.from_user.id in list_admins:
-        await callback.message.edit_text('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main_admin))
+        await callback.message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main_admin))
     else:
-        await callback.message.edit_text('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main))
+        await callback.message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main))
 
 
 
