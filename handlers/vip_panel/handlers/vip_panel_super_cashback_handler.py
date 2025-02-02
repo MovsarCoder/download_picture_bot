@@ -6,7 +6,7 @@ from aiogram.types import Message, CallbackQuery, BufferedInputFile
 from States.state import WildberriesCashback
 from keyboard.keyboard import super_feedbacks_show_keyboard, more_xlsx_super_product_keyboard
 from keyboard.keyboard_builder import make_row_inline_keyboards
-from handlers.vip_panel.vip_panel_functions.vip_panel_super_cashback_func import main
+from handlers.vip_panel.functions.vip_panel_super_cashback_func import main
 
 router = Router()
 

@@ -1,27 +1,27 @@
-import time
 import os
+import time
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message, BufferedInputFile
+from aiogram.types import Message, CallbackQuery, BufferedInputFile
 from States.state import WildberriesCashback
-from keyboard.keyboard import more_xlsx_all_product_keyboard
+from keyboard.keyboard import more_xlsx_product_keyboard
 from keyboard.keyboard_builder import make_row_inline_keyboards
-from handlers.vip_panel.vip_panel_functions.vip_panel_pars_all_product_func import main
+from handlers.vip_panel.functions.vip_panel_ordinary_cashback_func import main
 
 router = Router()
 
 
-@router.callback_query(F.data == 'pars_all_product')
-async def pars_all_product_functions(callback: CallbackQuery, state: FSMContext):
+@router.callback_query(F.data == 'feedback_cashback_data')
+async def send_name_product_func(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.answer()
+    await callback.answer('')
 
-    await callback.message.answer('Введите название товара который хотите найти')
-    await state.set_state(WildberriesCashback.get_name_all_product)
+    await callback.message.answer('Введите название товара для поиска <b>Кешбэка</b>: ')
+    await state.set_state(WildberriesCashback.get_name_product)
 
 
-@router.message(WildberriesCashback.get_name_all_product)
-async def pars_all_product_fsm(message: Message, state: FSMContext):
+@router.message(WildberriesCashback.get_name_product)
+async def get_name_product_func(message: Message, state: FSMContext):
     await state.update_data(name_product=message.text)
     data = await state.get_data()
     name_product = data['name_product']
@@ -41,9 +41,8 @@ async def pars_all_product_fsm(message: Message, state: FSMContext):
                                                     f'<b>Затраченное время:</b> <i>{show_time} сек.</i>\n'
                                                     f'<b>Админ:</b> <i>@timaadev</i>\n'
                                                     f'<b>Запрос:</b> "<i>{name_product}</i>"\n\n'
-                                                    f'<b>Были собраны данные только с 20 страниц.</b>\n'
                                                     f'Вот ваш файл с данными.',
-                                            reply_markup=make_row_inline_keyboards(more_xlsx_all_product_keyboard))
+                                            reply_markup=make_row_inline_keyboards(more_xlsx_product_keyboard))
         await send_name_box.delete()
         os.remove(f'../this_bot/{name_product}.csv')
         await state.clear()
@@ -56,8 +55,8 @@ async def pars_all_product_fsm(message: Message, state: FSMContext):
     print('Файл успешно отправлен.')
 
 
-@router.callback_query(F.data == 'more_all_product_data')
+@router.callback_query(F.data == 'more_new_xlsx_ordinary_product_data')
 async def more_new_xlsx_func(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.message.answer('Введите название товара для поиска нового товара')
-    await state.set_state(WildberriesCashback.get_name_all_product)
+    await callback.message.answer('Введите название товара для поиска <b>Кешбэка</b>')
+    await state.set_state(WildberriesCashback.get_name_product)
