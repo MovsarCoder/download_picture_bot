@@ -16,9 +16,9 @@ async def cmd_admin(callback_or_message: CallbackQuery | Message):
     admin_users_list = get_admin_list()
     if callback_or_message.from_user.id in admin_users_list:
         if isinstance(callback_or_message, CallbackQuery):
-            await callback_or_message.message.edit_text('Выберите действие', reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+            await callback_or_message.message.edit_text('❕Выберите действие', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
         elif isinstance(callback_or_message, Message):
-            await callback_or_message.reply('Выберите действие', reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+            await callback_or_message.reply('❕Выберите действие', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
     else:
         await callback_or_message.answer(
@@ -27,7 +27,7 @@ async def cmd_admin(callback_or_message: CallbackQuery | Message):
 
 @router.callback_query(F.data == 'new_admin_data')
 async def new_admin_user_func(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer('Введите ID пользователя, которого хотите добавить как админ', reply_markup=make_row_inline_keyboards(back_keyboard))
+    await callback.message.answer('👀Введите ID пользователя, которого хотите добавить как админ', reply_markup=make_row_inline_keyboards(back_keyboard))
     await state.set_state(AdminState.new_admin)
 
 
@@ -39,17 +39,17 @@ async def add_admin_id(message: Message, state: FSMContext):
         # Добавляем ID пользователя в список администраторов
 
         print('Администратор был успешно добавлен в базу данных')
-        await message.answer(f'Пользователь с ID {message.text} добавлен как админ.', reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+        await message.answer(f'✅Пользователь с ID {message.text} добавлен как админ.', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
         await state.clear()
         # Не удалось найти пользователя по данному ID
     except ValueError as e:
-        await message.answer(f'Ошибка добавления пользователя. Ошибка: {e}', reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+        await message.answer(f'❌Ошибка добавления пользователя. Ошибка: {e}', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
 
 @router.callback_query(F.data == 'remove_admin_list_data')
 async def remove_admin_func(callback: CallbackQuery, state: FSMContext):
     await callback.answer('')
-    await callback.message.answer('Введите ID пользователь, которого хотите удалить', reply_markup=make_row_inline_keyboards(back_keyboard))
+    await callback.message.answer('👀Введите ID пользователь, которого хотите удалить', reply_markup=make_row_inline_keyboards(back_keyboard))
     await state.set_state(AdminState.remove_admin)
 
 
@@ -58,10 +58,10 @@ async def remove_admin_func(message: Message, state: FSMContext):
     try:
         remove_admin(message.text)
         # Администратор успешно удален из базы данных.
-        await message.answer(f'Пользователь с ID {message.text} был удален!', reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+        await message.answer(f'✅Пользователь с ID {message.text} был удален!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
         await state.clear()
     except ValueError as e:
-        await message.answer(f'Ошибка удаления пользователя. Ошибка: {e}', reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+        await message.answer(f'❌Ошибка удаления пользователя. Ошибка: {e}', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
 
 @router.callback_query(F.data == 'add_new_group_username_data')
@@ -74,7 +74,7 @@ async def add_new_group_username_db(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminState.add_new_group_username)
 async def fsm_add_new_group_username(message: Message, state: FSMContext):
-    await message.answer(f'Хорошо! Username: {message.text}; Теперь отправьте название канала которое будет отображаться на кнопке!')
+    await message.answer(f'👀Хорошо! Username: {message.text}; Теперь отправьте название канала которое будет отображаться на кнопке!')
     await state.update_data(add_new_group_username=message.text)
     await state.set_state(AdminState.add_new_group_name)
 
@@ -92,11 +92,11 @@ async def fsm_add_new_group_name(message: Message, state: FSMContext):
 
     # Если такая группа с таким Username присутствует, выводится данное сообщение.
     if not add_group(group_data):
-        await message.answer(f'Ошибка! Группа с таким username уже существует: {group_data["username"]}', reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+        await message.answer(f'❌Ошибка! Группа с таким username уже существует: {group_data["username"]}', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
         return False
 
     # Если все успешно и Username свободен, группа успешно добавляется.
-    await message.answer(f'Отлично! Информацию про новую группу:\nUsername: {group_data["username"]}\nName: {group_data["name"]}', reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+    await message.answer(f'✅Отлично! Информацию про новую группу:\nUsername: {group_data["username"]}\nName: {group_data["name"]}', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
     await state.clear()
 
 
@@ -117,14 +117,14 @@ async def fsm_remove_group_db(message: Message, state: FSMContext):
         remove_func = remove_group(message_text)
         # Если функция remove_func возвращает True - группа удаляется и выводится сообщение
         if remove_func:
-            await message.answer(f'Группа с Username: {message_text} успешно удалена!', reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+            await message.answer(f'✅Группа с Username: {message_text} успешно удалена!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
             await state.clear()
         # Если такой группы нет.
         else:
-            await message.answer('Ошибка! Невозможно найти группу с таким Username!', reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+            await message.answer('😨Ошибка! Невозможно найти группу с таким Username!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
     except KeyError as e:
-        await message.answer(f'Ошибка типа 3453-234567 - {e}!')
+        await message.answer(f'😨Ошибка типа 3453-234567 - {e}!')
 
 
 @router.callback_query(F.data == 'list_group_data')
@@ -135,7 +135,7 @@ async def group_list_db(callback: CallbackQuery):
 
     # если в JSON-файле нет никаких групп для подписки, выведется данное сообщение
     if not groups:
-        await callback.message.answer("Нет добавленных групп.", reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+        await callback.message.answer("❌Нет добавленных групп.", reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
         return
     # если в JSON-файле есть группа из нее создастся клавиатура
     for group in groups:
@@ -146,16 +146,46 @@ async def group_list_db(callback: CallbackQuery):
     keyboard_list = InlineKeyboardMarkup(inline_keyboard=keyboard)
 
     # вывод сообщения со всеми группами и кнопкой "Назад"
-    await callback.message.edit_text('Доступные группы:', reply_markup=keyboard_list)
+    await callback.message.edit_text('📋Доступные группы:', reply_markup=keyboard_list)
+
+
+@router.callback_query(F.data == 'add_new_user_vip_panel')
+async def new_user_vip_panel(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    await callback.message.answer('Введите Телеграмм ID для добавления: ', reply_markup=make_row_inline_keyboards(back_keyboard))
+    await state.set_state(AddedWipPanel.get_id)
+
+
+@router.message(AddedWipPanel.get_id)
+async def get_telegram_id_vip_panel(message: Message, state: FSMContext):
+    await state.update_data(add_vip_panel_id=message.text)
+    await message.answer('Отлично! Теперь введите Имя и Фамилия: ')
+    await state.set_state(AddedWipPanel.get_name)
+
+
+@router.message(AddedWipPanel.get_name)
+async def get_name_vip_panel(message: Message, state: FSMContext):
+    await state.update_data(add_vip_panel_name=message.text)
+    data = await state.get_data()
+    vip_panel_information = {
+        'telegram_id': data['add_vip_panel_id'],
+        'name': data['add_vip_panel_name']
+    }
+
+    if add_new_user_vip_panel(vip_panel_information):
+        await message.answer('✅Пользователь успешно был добавлен!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
+
+    else:
+        await message.answer('❌Такой пользователь уже существует в базе данных!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
 
 @router.callback_query(F.data == 'back_data2')
 async def back_func_2(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.message.edit_text('Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(add_new_admin_user_keyboard))
+    await callback.message.edit_text('❕Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
 
 @router.callback_query(F.data == 'back_data')
 async def back_func(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.message.edit_text('Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(keyboard_main_admin))
+    await callback.message.edit_text('❕Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(keyboard_main_admin))
