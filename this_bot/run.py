@@ -7,6 +7,8 @@ from aiogram.methods import DeleteWebhook
 
 from config.config import TOKEN
 from aiogram import Bot, Dispatcher
+
+from handlers.admin_panel.admin_help_func import create_tables
 from handlers.init import router
 
 async def main():
@@ -20,6 +22,7 @@ async def main():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     try:
+        create_tables()
         asyncio.run(main())
     except KeyboardInterrupt:
         print('Exit')
