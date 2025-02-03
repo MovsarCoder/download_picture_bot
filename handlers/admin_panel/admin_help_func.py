@@ -1,7 +1,9 @@
 import sqlite3
 from datetime import datetime
+from sqlite3 import connect
 
-database_url = '../database/database.db'
+database_url = '/Users/mansur/Desktop/download_picture_bot2/database/database.db'
+
 
 def create_tables():
     conn = sqlite3.connect(database_url)
@@ -36,8 +38,17 @@ def create_tables():
     )
     """)
 
+    # Создание таблицы для Вип пользователей
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS vip_panel (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        telegram_id INTEGER UNIQUE,
+        name TEXT
+    )""")
+
     conn.commit()
     conn.close()
+
 
 def write_user(fullname, firstname, lastname, telegram_id):
     conn = sqlite3.connect(database_url)
@@ -57,6 +68,7 @@ def write_user(fullname, firstname, lastname, telegram_id):
     finally:
         conn.close()
 
+
 def user_exists(telegram_id):
     conn = sqlite3.connect(database_url)
     cursor = conn.cursor()
@@ -66,6 +78,7 @@ def user_exists(telegram_id):
 
     conn.close()
     return exists
+
 
 def add_admin(telegram_id):
     conn = sqlite3.connect(database_url)
@@ -80,6 +93,7 @@ def add_admin(telegram_id):
     finally:
         conn.close()
 
+
 def remove_admin(telegram_id):
     conn = sqlite3.connect(database_url)
     cursor = conn.cursor()
@@ -87,6 +101,7 @@ def remove_admin(telegram_id):
     cursor.execute("DELETE FROM admin_list WHERE telegram_id = ?", (telegram_id,))
     conn.commit()
     conn.close()
+
 
 def get_admin_list():
     conn = sqlite3.connect(database_url)
@@ -97,6 +112,7 @@ def get_admin_list():
 
     conn.close()
     return admin_list
+
 
 def add_group(group_data):
     conn = sqlite3.connect(database_url)
@@ -111,6 +127,7 @@ def add_group(group_data):
         return False
     finally:
         conn.close()
+
 
 def remove_group(username):
     conn = sqlite3.connect(database_url)
@@ -127,6 +144,7 @@ def remove_group(username):
     conn.close()
     return success
 
+
 def load_groups():
     conn = sqlite3.connect(database_url)
     cursor = conn.cursor()
@@ -136,3 +154,37 @@ def load_groups():
 
     conn.close()
     return groups
+
+
+def get_player_vip_panel(data):
+    conn = sqlite3.connect(database_url)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COUNT(*) FROM vip_panel WHERE telegram_id = ?
+    """, (data['telegram_id'],))
+
+    tasks = cursor.fetchall()[0][0]  # Извлекаем значение из кортежа
+
+    conn.close()  # Закрываем соединение с базой данных
+
+    return tasks > 0
+
+
+def add_new_user_vip_panel(data):
+    conn = sqlite3.connect(database_url)
+    cursor = conn.cursor()
+
+    if get_player_vip_panel(data):
+        print('Такой пользователь уже есть')
+        return False
+    else:
+        print('человек добавлен')
+        cursor.execute("""
+            INSERT INTO vip_panel (telegram_id, name) VALUES (?, ?)
+        """, (data['telegram_id'], data['name']))  # Передаем оба значения
+
+        conn.commit()  # Не забудьте зафиксировать изменения
+        conn.close()  # Закрываем соединение с базой данных
+        return True  # Возвращаем True, если пользователь был добавлен
+
