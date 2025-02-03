@@ -22,3 +22,7 @@ class WildberriesCashback(StatesGroup):
     get_name_product = State() # Обычный кешбэк
     get_name_super_cashback_product = State()
     get_name_all_product = State()
+
+class AddedWipPanel(StatesGroup):
+    get_id = State()
+    get_name = State()
