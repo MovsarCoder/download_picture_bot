@@ -13,14 +13,15 @@ keyboard_main = [
 
 
 
-add_new_admin_user_keyboard = [
+admin_panel_keyboard = [
     ("🧑‍💼Рассылка", "broadcast_message"),
     ("🧑‍💼Добавить нового админа", "new_admin_data"),
     ("❌Удалить админа", "remove_admin_list_data"),
     ("📈Добавить новую группу для подписки", "add_new_group_username_data"),
     ("📉Удалить группу", "delete_group_data"),
     ("📁Список групп", "list_group_data"),
-    ("🧑Cписок администрации", "database_list_admin_data"),
+    ('👤Новый пользователь Vip Panel', "add_new_user_vip_panel"),
+    ("🧑Список администрации", "database_list_admin_data"),
     ("🧑‍💼Получить ID пользователя", "get_player_id"),
     ("🔙Назад", "back_data"),
 ]
