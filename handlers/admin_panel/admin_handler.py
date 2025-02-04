@@ -16,9 +16,9 @@ async def cmd_admin(callback_or_message: CallbackQuery | Message):
     admin_users_list = get_admin_list()
     if callback_or_message.from_user.id in admin_users_list:
         if isinstance(callback_or_message, CallbackQuery):
-            await callback_or_message.message.edit_text('❕Выберите действие', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
+            await callback_or_message.message.answer('❕Выберите действие', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
         elif isinstance(callback_or_message, Message):
-            await callback_or_message.reply('❕Выберите действие', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
+            await callback_or_message.answer('❕Выберите действие', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
     else:
         await callback_or_message.answer(
@@ -182,10 +182,10 @@ async def get_name_vip_panel(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'back_data2')
 async def back_func_2(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.message.edit_text('❕Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
+    await callback.message.answer('❕Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
 
 @router.callback_query(F.data == 'back_data')
 async def back_func(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.message.edit_text('❕Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(keyboard_main_admin))
+    await callback.message.answer('❕Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(keyboard_main_admin))
