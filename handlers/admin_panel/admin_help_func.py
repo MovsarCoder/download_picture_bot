@@ -1,6 +1,5 @@
 import sqlite3
 from datetime import datetime
-from sqlite3 import connect
 
 database_url = '/Users/mansur/Desktop/download_picture_bot2/database/database.db'
 
@@ -177,6 +176,7 @@ def add_new_user_vip_panel(data):
 
     if get_player_vip_panel(data):
         print('Такой пользователь уже есть')
+        conn.close()
         return False
     else:
         print('человек добавлен')
@@ -188,3 +188,22 @@ def add_new_user_vip_panel(data):
         conn.close()  # Закрываем соединение с базой данных
         return True  # Возвращаем True, если пользователь был добавлен
 
+
+def delete_users_with_vip_panel_functions(data):
+    conn = sqlite3.connect(database_url)
+    cursor = conn.cursor()
+
+    if get_player_vip_panel(data): # Если человека нет в базе данных
+        print('Человек успешно удален!')
+        cursor.execute("""
+                DELETE FROM vip_panel WHERE telegram_id = ?
+                """, (data['telegram_id'],))
+
+        conn.commit()
+        conn.close()
+        return True
+
+
+    else: # Если такого нет в базе данных
+        print('Такого пользователя нет в базе данных!')
+        return False
