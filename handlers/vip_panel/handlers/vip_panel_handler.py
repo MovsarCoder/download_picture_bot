@@ -25,7 +25,7 @@ async def show_vip_keyboard_func(callback: CallbackQuery):
 
     else:
         await callback.message.answer(
-            f'❌{callback.from_user.full_name}({callback.from_user.id}) вы не можете получить доступ к Vip Panel данного бота! Так как не являетесь Пользователем!')
+            f'⚠️{callback.from_user.full_name}({callback.from_user.id}) вы не можете получить доступ к Vip Panel данного бота! Так как не являетесь Пользователем!\n\n👀Для покупки подписки Vip напишите мне: @timaadev')
 
 
 @router.callback_query(F.data == 'more_stop_vip_panel')
