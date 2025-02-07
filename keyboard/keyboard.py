@@ -15,12 +15,13 @@ keyboard_main = [
 
 admin_panel_keyboard = [
     ("🧑‍💼Рассылка", "broadcast_message"),
-    ("🧑‍💼Добавить нового админа", "new_admin_data"),
+    ("👤Добавить нового админа", "new_admin_data"),
     ("❌Удалить админа", "remove_admin_list_data"),
     ("📈Добавить новую группу для подписки", "add_new_group_username_data"),
     ("📉Удалить группу", "delete_group_data"),
     ("📁Список групп", "list_group_data"),
     ('👤Новый пользователь Vip Panel', "add_new_user_vip_panel"),
+    ('❌Удалить пользователя Vip Panel', "delete_user_with_vip_panel"),
     ("🧑Список администрации", "database_list_admin_data"),
     ("🧑‍💼Получить ID пользователя", "get_player_id"),
     ("🔙Назад", "back_data"),
@@ -82,3 +83,4 @@ more_xlsx_super_product_keyboard = [
 more_xlsx_all_product_keyboard = [
     ('Другой запрос', 'more_all_product_data')
 ]
+
