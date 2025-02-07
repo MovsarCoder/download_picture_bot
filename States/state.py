@@ -1,3 +1,5 @@
+from statistics import StatisticsError
+
 from aiogram.fsm.state import State, StatesGroup
 
 
@@ -23,6 +25,9 @@ class WildberriesCashback(StatesGroup):
     get_name_super_cashback_product = State()
     get_name_all_product = State()
 
-class AddedWipPanel(StatesGroup):
+class AddedVipPanel(StatesGroup):
     get_id = State()
     get_name = State()
+
+class DeleteVipPanel(StatesGroup):
+    get_id = State()
