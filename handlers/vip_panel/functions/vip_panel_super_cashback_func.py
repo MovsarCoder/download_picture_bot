@@ -110,6 +110,7 @@ async def main(search_item):
 
                     # Проверяем, что feedbackPoints >= price
                     if feedback_points >= price // 2:
+                    # if min(price):
                         await save_to_csv(product_id, name, price, create_url, product_brand, feedback_points, supplier, supplier_rating, entity, search_item)
                         added_products_count += 1  # Увеличиваем счетчик добавленных товаров
 
