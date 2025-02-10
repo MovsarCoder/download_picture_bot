@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import requests
 
@@ -9,18 +11,15 @@ async def create_csv(filename):
 
 
 async def save_to_csv(product_id, product_name, product_price, product_url, product_brand, feedback_points, supplier, supplier_rating, entity, filename):
-    # Загружаем существующий файл или создаем новый DataFrame
-    try:
-        df = pd.read_csv(f'{filename}.xlsx')
-    except FileNotFoundError:
-        df = pd.DataFrame(columns=['id', 'name', 'price', 'url', 'brand', 'feedbackPoints', 'supplier', 'supplierRating', 'entity'])
+    # Проверяем, существует ли файл
+    df = pd.read_csv(f'{filename}.csv')
 
     # Проверяем, существует ли уже запись с таким же id
     if not df[df['id'] == product_id].empty:
         print(f"Продукт с id {product_id} уже существует.")
         return
 
-    # Добавляем новую строку
+    # Создаем новую строку
     new_row = {
         'id': product_id,
         'name': product_name,
@@ -33,12 +32,12 @@ async def save_to_csv(product_id, product_name, product_price, product_url, prod
         'entity': entity
     }
 
-    # Используем pd.concat для добавления новой строки
-    df = pd.concat([df, pd.DataFrame([new_row])])
+    # Добавляем новую строку в DataFrame
+    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
 
-    # Сохраняем DataFrame обратно в CSV файл без пустых строк
-    df.dropna(how='all', inplace=True)  # Удаляем пустые строки, если они есть
+    # Сохраняем DataFrame обратно в CSV файл
     df.to_csv(f'{filename}.csv', index=False, sep=',')
+    # print("Файл успешно сохранен.")
 
 
 async def create_params(page: int, search_item: str):
@@ -109,8 +108,8 @@ async def main(search_item):
                     entity = product.get('entity', 'Неизвестно')
 
                     # Проверяем, что feedbackPoints >= price
-                    if feedback_points >= price // 2:
-                    # if min(price):
+                    if feedback_points >= price // 2 and feedback_points > (price * 0.25) / 2:
+                        # if min(price):
                         await save_to_csv(product_id, name, price, create_url, product_brand, feedback_points, supplier, supplier_rating, entity, search_item)
                         added_products_count += 1  # Увеличиваем счетчик добавленных товаров
 
