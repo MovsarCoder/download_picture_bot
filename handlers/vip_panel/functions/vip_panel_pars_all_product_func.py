@@ -9,11 +9,8 @@ async def create_csv(filename):
 
 
 async def save_to_csv(product_id, product_name, product_price, product_url, product_brand, feedback_points, supplier, supplier_rating, entity, filename):
-    # Загружаем существующий файл или создаем новый DataFrame
-    try:
-        df = pd.read_csv(f'{filename}.csv', sep=',', encoding='utf-8')
-    except FileNotFoundError:
-        df = pd.DataFrame(columns=['id', 'name', 'price', 'url', 'brand', 'feedbackPoints', 'supplier', 'supplierRating', 'entity'])
+    # Проверяем, существует ли файл
+    df = pd.read_csv(f'{filename}.csv')
 
     # Проверяем, существует ли уже запись с таким же id
     if not df[df['id'] == product_id].empty:
@@ -33,12 +30,12 @@ async def save_to_csv(product_id, product_name, product_price, product_url, prod
         'entity': entity
     }
 
-    # Используем pd.concat для добавления новой строки
-    df = pd.concat([df, pd.DataFrame([new_row])])
+    # Добавляем новую строку в DataFrame
+    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
 
-    # Сохраняем DataFrame обратно в CSV файл без пустых строк
-    df.dropna(how='all', inplace=True)  # Удаляем пустые строки, если они есть
-    df.to_csv(f'{filename}.csv', index=False, sep=',', encoding='utf-8')
+    # Сохраняем DataFrame обратно в CSV файл
+    df.to_csv(f'{filename}.csv', index=False, sep=',')
+    # print("Файл успешно сохранен.")
 
 
 async def create_params(page: int, search_item: str):
