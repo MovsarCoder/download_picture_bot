@@ -37,13 +37,13 @@ back_keyboard = [
 
 
 more_keyboard = [
-    ("Другой товар", "more_download_picture"),
     ("🔙Назад", "more_stop"),
+    ("Другой товар", "more_download_picture"),
 ]
 
 more_keyboard_video = [
-    ("Другой товар", "more_download_video"),
     ("🔙Назад", "more_stop"),
+    ("Другой товар", "more_download_video"),
 ]
 
 
@@ -56,11 +56,11 @@ more_keyboard_video = [
 
 
 show_vip_keyboard = [
+    ("🔙Назад", "more_stop"),
     ("Информация", "show_vip_data_info"),
     ('Спарсить товар WB', 'pars_all_product'),
     ("Спарсить товар с Кешбэком", "feedback_cashback_data"),
     ("Спарсить товар с Выгодным кешбэком", "feedback_cashback_data_100"),
-    ("🔙Назад", "more_stop"),
 ]
 
 back_vip_keyboard = [
@@ -72,8 +72,8 @@ more_xlsx_product_keyboard = [
 ]
 
 super_feedbacks_show_keyboard = [
-    ("По запросу", "feedback_super_cashback_requests_data"),
     ("🔙Назад", "more_stop_vip_panel"),
+    ("По запросу", "feedback_super_cashback_requests_data"),
 ]
 
 more_xlsx_super_product_keyboard = [
