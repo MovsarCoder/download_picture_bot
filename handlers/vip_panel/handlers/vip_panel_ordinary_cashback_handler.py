@@ -4,7 +4,8 @@ from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, BufferedInputFile
 from States.state import WildberriesCashback
-from keyboard.keyboard import more_xlsx_product_keyboard
+from config.config import ADMIN
+from keyboard.keyboard import more_xlsx_product_keyboard, show_vip_keyboard
 from keyboard.keyboard_builder import make_row_inline_keyboards
 from handlers.vip_panel.functions.vip_panel_ordinary_cashback_func import main
 
@@ -28,10 +29,15 @@ async def get_name_product_func(message: Message, state: FSMContext):
 
     send_name_box = await message.answer(f'Файл по запросу: <b>{name_product}</b> собирается. Ожидайте!')
 
+    # Получаем администратора для бота
+    admin = ADMIN
+
     start_time = time.time()
     await main(name_product)
     end_time = time.time()
     show_time = int(end_time - start_time)
+    # Объединяем главную клавиатуру Vip Panel с клавиатурой на которой кнопка "Другой запрос"
+    keyboard = show_vip_keyboard + more_xlsx_product_keyboard
 
     try:
         with open(f'../this_bot/{name_product}.csv', 'rb') as file:
@@ -39,10 +45,10 @@ async def get_name_product_func(message: Message, state: FSMContext):
                                                                                filename=f'../this_bot/{name_product}.csv'),
                                             caption=f'✅ <b>Работа завершена успешно</b>\n'
                                                     f'<b>Затраченное время:</b> <i>{show_time} сек.</i>\n'
-                                                    f'<b>Админ:</b> <i>@timaadev</i>\n'
+                                                    f'<b>Админ:</b> <i>{admin}</i>\n'
                                                     f'<b>Запрос:</b> "<i>{name_product}</i>"\n\n'
                                                     f'Вот ваш файл с данными.',
-                                            reply_markup=make_row_inline_keyboards(more_xlsx_product_keyboard))
+                                            reply_markup=make_row_inline_keyboards(keyboard))
         await send_name_box.delete()
         os.remove(f'../this_bot/{name_product}.csv')
         await state.clear()
