@@ -4,11 +4,11 @@ import requests
 
 async def create_csv(filename):
     # Создаем DataFrame с заголовками
-    df = pd.DataFrame(columns=['id', 'name', 'price', 'url', 'brand', 'feedbackPoints', 'supplier', 'supplierRating', 'entity'])
+    df = pd.DataFrame(columns=['id', 'name', 'brand', 'feedbacks', 'price', 'feedbackPoints', 'url', 'rating', 'supplier', 'supplierRating', 'entity'])
     df.to_csv(f'{filename}.csv', index=False, sep=',', encoding='utf-8')
 
 
-async def save_to_csv(product_id, product_name, product_price, product_url, product_brand, feedback_points, supplier, supplier_rating, entity, filename):
+async def save_to_csv(product_id, product_name, product_brand, product_feedbacks, product_price, feedback_points, product_url, product_rating, supplier, supplier_rating, entity, filename):
     # Проверяем, существует ли файл
     df = pd.read_csv(f'{filename}.csv')
 
@@ -21,10 +21,12 @@ async def save_to_csv(product_id, product_name, product_price, product_url, prod
     new_row = {
         'id': product_id,
         'name': product_name,
-        'price': product_price,
-        'url': product_url,
         'brand': product_brand,
+        'feedbacks': product_feedbacks,
+        'price': product_price,
         'feedbackPoints': feedback_points,
+        'url': product_url,
+        'rating': product_rating,
         'supplier': supplier,
         'supplierRating': supplier_rating,
         'entity': entity
@@ -36,6 +38,7 @@ async def save_to_csv(product_id, product_name, product_price, product_url, prod
     # Сохраняем DataFrame обратно в CSV файл
     df.to_csv(f'{filename}.csv', index=False, sep=',')
     # print("Файл успешно сохранен.")
+
 
 
 async def create_params(page: int, search_item: str):
@@ -68,12 +71,14 @@ async def fetch_total_results(search_item):
 
 async def main(search_item):
     await create_csv(search_item)  # Создаем CSV файл один раз в начале
-    total_results = await fetch_total_results(search_item)
+    # total_results = await fetch_total_results(search_item)
     # Полное количество страниц
     # total_pages = (total_results // 100) + 2
 
     # Спарсим только 20 страниц
     total_pages = 20
+
+    all_products = []  # Список для хранения всех товаров
 
     for page in range(1, total_pages):
         print(f'Страница: {page}')
@@ -100,16 +105,52 @@ async def main(search_item):
                         print(f"У продукта {product_id} отсутствует массив 'sizes'. Пропускаем.")
                         continue
 
+                    product_feedbacks = product.get('feedbacks', 0)
                     feedback_points = product.get('feedbackPoints', 0)
                     product_brand = product.get('brand', 'Неизвестно')
+                    product_rating = product.get('reviewRating', 0)
+
                     supplier = product.get('supplier', 'Неизвестно')
                     supplier_rating = product.get('supplierRating', 0)
                     entity = product.get('entity', 'Неизвестно')
 
-                    await save_to_csv(product_id, name, price, create_url, product_brand, feedback_points, supplier, supplier_rating, entity, search_item)
+                    # Добавляем товар в список
+                    all_products.append({
+                        'id': product_id,
+                        'name': name,
+                        'brand': product_brand,
+                        'feedbacks': product_feedbacks,
+                        'price': price,
+                        'feedbackPoints': feedback_points,
+                        'url': create_url,
+                        'rating': product_rating,
+                        'supplier': supplier,
+                        'supplierRating': supplier_rating,
+                        'entity': entity
+                    })
 
                 except Exception as e:
                     print(f"Ошибка в обработке продукта {product_id}: {e}")
 
         else:
             print(f"Ошибка при запросе страницы {page}: {response.status_code}")
+
+    # Сортируем товары по цене
+    all_products.sort(key=lambda x: x['price'])
+
+    # Сохраняем отсортированные товары в CSV
+    for product in all_products:
+        await save_to_csv(
+            product['id'],
+            product['name'],
+            product['brand'],
+            product['feedbacks'],
+            product['price'],
+            product['feedbackPoints'],
+            product['url'],
+            product['rating'],
+            product['supplier'],
+            product['supplierRating'],
+            product['entity'],
+            search_item
+        )
