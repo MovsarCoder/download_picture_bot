@@ -1,16 +1,14 @@
-import os
-
 import pandas as pd
 import requests
 
 
 async def create_csv(filename):
     # Создаем DataFrame с заголовками
-    df = pd.DataFrame(columns=['id', 'name', 'price', 'url', 'brand', 'feedbackPoints', 'supplier', 'supplierRating', 'entity'])
-    df.to_csv(f'{filename}.csv', index=False, sep=',')
+    df = pd.DataFrame(columns=['id', 'name', 'brand', 'feedbacks', 'price', 'feedbackPoints', 'url', 'rating', 'supplier', 'supplierRating', 'entity'])
+    df.to_csv(f'{filename}.csv', index=False, sep=',', encoding='utf-8')
 
 
-async def save_to_csv(product_id, product_name, product_price, product_url, product_brand, feedback_points, supplier, supplier_rating, entity, filename):
+async def save_to_csv(product_id, product_name, product_brand, product_feedbacks, product_price, feedback_points, product_url, product_rating, supplier, supplier_rating, entity, filename):
     # Проверяем, существует ли файл
     df = pd.read_csv(f'{filename}.csv')
 
@@ -19,14 +17,16 @@ async def save_to_csv(product_id, product_name, product_price, product_url, prod
         print(f"Продукт с id {product_id} уже существует.")
         return
 
-    # Создаем новую строку
+    # Добавляем новую строку
     new_row = {
         'id': product_id,
         'name': product_name,
-        'price': product_price,
-        'url': product_url,
         'brand': product_brand,
+        'feedbacks': product_feedbacks,
+        'price': product_price,
         'feedbackPoints': feedback_points,
+        'url': product_url,
+        'rating': product_rating,
         'supplier': supplier,
         'supplierRating': supplier_rating,
         'entity': entity
@@ -74,7 +74,7 @@ async def main(search_item):
     total_results = await fetch_total_results(search_item)
     total_pages = (total_results // 100) + 2
 
-    added_products_count = 0  # Счетчик добавленных товаров
+    all_products = []  # Список для хранения всех товаров
 
     for page in range(1, total_pages):
         print(f'Страница: {page}')
@@ -83,7 +83,7 @@ async def main(search_item):
         response = requests.get('https://search.wb.ru/exactmatch/ru/common/v9/search', params=params)
 
         if response.status_code == 200:
-            products = response.json().get('data', {}).get('products', [])
+            products = response.json()['data']['products']
 
             for product in products:
                 # Проверяем существование полей sizes и price
@@ -101,8 +101,11 @@ async def main(search_item):
                         print(f"У продукта {product_id} отсутствует массив 'sizes'. Пропускаем.")
                         continue
 
+                    product_feedbacks = product.get('feedbacks', 0)
                     feedback_points = product.get('feedbackPoints', 0)
                     product_brand = product.get('brand', 'Неизвестно')
+                    product_rating = product.get('reviewRating', 0)
+
                     supplier = product.get('supplier', 'Неизвестно')
                     supplier_rating = product.get('supplierRating', 0)
                     entity = product.get('entity', 'Неизвестно')
@@ -110,13 +113,42 @@ async def main(search_item):
                     # Проверяем, что feedbackPoints >= price
                     if feedback_points >= price // 2 and feedback_points > (price * 0.25) / 2:
                         # if min(price):
-                        await save_to_csv(product_id, name, price, create_url, product_brand, feedback_points, supplier, supplier_rating, entity, search_item)
-                        added_products_count += 1  # Увеличиваем счетчик добавленных товаров
+                        # Добавляем товар в список
+                        all_products.append({
+                            'id': product_id,
+                            'name': name,
+                            'brand': product_brand,
+                            'feedbacks': product_feedbacks,
+                            'price': price,
+                            'feedbackPoints': feedback_points,
+                            'url': create_url,
+                            'rating': product_rating,
+                            'supplier': supplier,
+                            'supplierRating': supplier_rating,
+                            'entity': entity
+                        })
 
                 except Exception as e:
                     print(f"Ошибка в обработке продукта {product_id}: {e}")
         else:
             print(f"Ошибка при запросе страницы {page}: {response.status_code}")
 
-    # Выводим количество добавленных товаров
-    print(f"Количество добавленных товаров: {added_products_count}")
+    # Сортируем товары по цене
+    all_products.sort(key=lambda x: x['price'])
+
+    # Сохраняем отсортированные товары в CSV
+    for product in all_products:
+        await save_to_csv(
+            product['id'],
+            product['name'],
+            product['brand'],
+            product['feedbacks'],
+            product['price'],
+            product['feedbackPoints'],
+            product['url'],
+            product['rating'],
+            product['supplier'],
+            product['supplierRating'],
+            product['entity'],
+            search_item
+        )
