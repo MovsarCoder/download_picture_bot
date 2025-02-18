@@ -34,11 +34,11 @@ async def get_name_product_func(message: Message, state: FSMContext):
 
     # Запуск парсера
     name_product = data['name_product'] # Получаем введеный запрос пользователя
-    await main(name_product)
 
     # Получаем администратора для бота
     admin = ADMIN
     start_time = time.time()
+    await main(name_product)
     end_time = time.time()
     show_time = int(end_time - start_time)
 
