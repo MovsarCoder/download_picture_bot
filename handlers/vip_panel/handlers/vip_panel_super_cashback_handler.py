@@ -1,6 +1,7 @@
 import os
 import time
 from aiogram import F, Router
+from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, BufferedInputFile
 from States.state import WildberriesCashback
@@ -22,9 +23,12 @@ async def feedback_cashback_data_100(callback: CallbackQuery, state: FSMContext)
 
 @router.callback_query(F.data == 'feedback_super_cashback_requests_data')
 async def feedback_super_cashback_requests_data(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
     await callback.answer('')
 
-    await callback.message.answer('Введите название товара для поиска <b>Выгодного кешбэка</b>')
+    await callback.message.answer("Запущен парсер кэшбека Wildberries по поисковому запросу или категории! Вставьте ссылку на категорию или напишите запрос. Например: ```https://www.wildberries.ru/catalog/dlya-doma/predmety-interera/svechi-i-podsvechniki``` Или ```Платье женское``` ",
+                                  parse_mode=ParseMode.MARKDOWN)
+
     await state.set_state(WildberriesCashback.get_name_super_cashback_product)
 
 
@@ -32,17 +36,19 @@ async def feedback_super_cashback_requests_data(callback: CallbackQuery, state: 
 async def feedback_super_cashback_requests_data_fsm(message: Message, state: FSMContext):
     await state.update_data(name_product=message.text)
     data = await state.get_data()
-    name_product = data['name_product']
 
-    send_name_box = await message.answer(f'Файл по запросу: <b>{name_product}</b> собирается. Ожидайте!')
+    await message.answer(f'⚙️ Парсер начал работу...')
+
+    name_product = data['name_product']
+    await main(name_product)
+
 
     # Получаем администратора для бота
     admin = ADMIN
-
     start_time = time.time()
-    await main(name_product)
     end_time = time.time()
     show_time = int(end_time - start_time)
+
     # Объединяем главную клавиатуру Vip Panel с клавиатурой на которой кнопка "Другой запрос"
     keyboard = show_vip_keyboard + more_xlsx_super_product_keyboard
 
@@ -56,12 +62,10 @@ async def feedback_super_cashback_requests_data_fsm(message: Message, state: FSM
                                                     f'<b>Запрос:</b> "<i>{name_product}</i>"\n\n'
                                                     f'Вот ваш файл с данными.',
                                             reply_markup=make_row_inline_keyboards(keyboard))
-        await send_name_box.delete()
         os.remove(f'../this_bot/{name_product}.csv')
         await state.clear()
 
     except Exception as ex:
-        await send_name_box.delete()
         await message.answer(f'Запрос не обработан по причине: {ex}')
         os.remove(f'../this_bot/{name_product}.csv')
 
