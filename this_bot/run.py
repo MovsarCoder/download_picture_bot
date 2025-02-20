@@ -11,7 +11,6 @@ from handlers.admin_panel.admin_help_func import create_tables
 from handlers.init import router
 
 
-
 async def main():
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher()
