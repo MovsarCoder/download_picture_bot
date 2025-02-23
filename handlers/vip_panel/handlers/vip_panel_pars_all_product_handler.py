@@ -69,5 +69,9 @@ async def pars_all_product_fsm(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'more_all_product_data')
 async def more_new_xlsx_func(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.message.answer('Введите название товара для поиска нового товара')
+
+    await callback.message.answer(
+        "Запущен парсер кэшбека Wildberries по поисковому запросу или категории! Вставьте ссылку на категорию или напишите запрос. Например: ```https://www.wildberries.ru/catalog/dlya-doma/predmety-interera/svechi-i-podsvechniki``` Или ```Платье женское``` ",
+        parse_mode=ParseMode.MARKDOWN)
+
     await state.set_state(WildberriesCashback.get_name_all_product)
