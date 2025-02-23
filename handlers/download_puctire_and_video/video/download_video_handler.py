@@ -1,4 +1,5 @@
 from aiogram import F, Router
+from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from handlers.download_puctire_and_video.video.download_video_func import construct_host_v2
@@ -12,7 +13,8 @@ router = Router()
 
 @router.callback_query(F.data == 'download_video_data')
 async def send_download_video_data(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer('Отправьте ссылку или артикул товара')
+    await callback.message.answer('Вставьте ссылку или напишите артикул товара. Например: ```https://www.wildberries.ru/catalog/124302874/detail.aspx``` Или ```124302874``` ',
+                                  parse_mode=ParseMode.MARKDOWN)
     await state.set_state(Wildberries.download_video)
 
 
@@ -50,5 +52,5 @@ async def fsm_send_download_video(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'more_download_video')
 async def more_download(callback: CallbackQuery, state: FSMContext):
     await state.set_state(Wildberries.download_video)
-    await callback.answer('More downloading :///')
-    await callback.message.answer('Продолжим! Отправьте ссылку или артикул товара.')
+    await callback.message.answer('Вставьте ссылку или напишите артикул товара. Например: ```https://www.wildberries.ru/catalog/124302874/detail.aspx``` Или ```124302874``` ',
+                                  parse_mode=ParseMode.MARKDOWN)
