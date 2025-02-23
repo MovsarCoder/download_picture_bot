@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, BufferedInputFile
 from States.state import WildberriesCashback
 from config.config import ADMIN
-from keyboard.keyboard import super_feedbacks_show_keyboard, more_xlsx_super_product_keyboard, show_vip_keyboard
+from keyboard.keyboard import more_xlsx_super_product_keyboard, show_vip_keyboard
 from keyboard.keyboard_builder import make_row_inline_keyboards
 from handlers.vip_panel.functions.vip_panel_super_cashback_func import main
 
@@ -14,20 +14,13 @@ router = Router()
 
 
 @router.callback_query(F.data == 'feedback_cashback_data_100')
-async def feedback_cashback_data_100(callback: CallbackQuery, state: FSMContext):
-    await state.clear()
-    await callback.answer('')
-
-    await callback.message.answer('Выберите опцию: ', reply_markup=make_row_inline_keyboards(super_feedbacks_show_keyboard))
-
-
-@router.callback_query(F.data == 'feedback_super_cashback_requests_data')
 async def feedback_super_cashback_requests_data(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await callback.answer('')
 
-    await callback.message.answer("Запущен парсер кэшбека Wildberries по поисковому запросу или категории! Вставьте ссылку на категорию или напишите запрос. Например: ```https://www.wildberries.ru/catalog/dlya-doma/predmety-interera/svechi-i-podsvechniki``` Или ```Платье женское``` ",
-                                  parse_mode=ParseMode.MARKDOWN)
+    await callback.message.answer(
+        "Запущен парсер кэшбека Wildberries по поисковому запросу или категории! Вставьте ссылку на категорию или напишите запрос. Например: ```https://www.wildberries.ru/catalog/dlya-doma/predmety-interera/svechi-i-podsvechniki``` Или ```Платье женское``` ",
+        parse_mode=ParseMode.MARKDOWN)
 
     await state.set_state(WildberriesCashback.get_name_super_cashback_product)
 
@@ -41,7 +34,6 @@ async def feedback_super_cashback_requests_data_fsm(message: Message, state: FSM
 
     name_product = data['name_product']
     await main(name_product)
-
 
     # Получаем администратора для бота
     admin = ADMIN
@@ -77,5 +69,8 @@ async def more_new_xlsx_super_product_data(callback: CallbackQuery, state: FSMCo
     await callback.answer()
     await state.clear()
 
-    await callback.message.answer('Введите название товара для поиска <b>Выгодного кешбэка</b>')
+    await callback.message.answer(
+        "Запущен парсер кэшбека Wildberries по поисковому запросу или категории! Вставьте ссылку на категорию или напишите запрос. Например: ```https://www.wildberries.ru/catalog/dlya-doma/predmety-interera/svechi-i-podsvechniki``` Или ```Платье женское``` ",
+        parse_mode=ParseMode.MARKDOWN)
+
     await state.set_state(WildberriesCashback.get_name_super_cashback_product)
