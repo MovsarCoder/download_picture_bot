@@ -1,3 +1,4 @@
+from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 
@@ -13,7 +14,8 @@ router = Router()
 
 @router.callback_query(F.data == 'download_picture_data')
 async def download_picture_func(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer('Отправьте ссылку или артикул товара')
+    await callback.message.answer('Вставьте ссылку или напишите артикул товара. Например: ```https://www.wildberries.ru/catalog/124302874/detail.aspx``` Или ```124302874``` ',
+                                  parse_mode=ParseMode.MARKDOWN)
     await state.set_state(Wildberries.download_picture)
 
 
@@ -75,5 +77,5 @@ async def download_picture_func_fsm(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'more_download_picture')
 async def more_download(callback: CallbackQuery, state: FSMContext):
     await state.set_state(Wildberries.download_picture)
-    await callback.answer('More downloading :///')
-    await callback.message.answer('Продолжим скачивание! Отправьте ссылку или артикул товара.')
+    await callback.message.answer('Вставьте ссылку или напишите артикул товара. Например: ```https://www.wildberries.ru/catalog/124302874/detail.aspx``` Или ```124302874``` ',
+                                  parse_mode=ParseMode.MARKDOWN)
