@@ -62,7 +62,10 @@ more_keyboard_video = [
 
 
 
-
+# Покупака вип панели
+buy_vip_panel_keyboard = [
+    ('Купить VIP 💎', 'buy_vip_panel_data')
+]
 
 # Клавиатура для VIP-функций
 show_vip_keyboard = [
