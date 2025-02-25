@@ -38,7 +38,6 @@ admin_panel_keyboard = [
     ("➖ Удалить VIP", "delete_user_with_vip_panel"),
     ("👥 Список админов", "database_list_admin_data"),
     ("🆔 Получить ID", "get_player_id"),
-    ("🔙 Назад", "back_data"),
 ]
 
 back_keyboard = [
