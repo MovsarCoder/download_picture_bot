@@ -1,10 +1,11 @@
 from aiogram.filters import CommandStart
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram import Router, F
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram import Router
 from aiogram.fsm.context import FSMContext
+
 from keyboard.keyboard import *
-from handlers.admin_panel.admin_help_func import *
-from keyboard.keyboard_builder import make_row_inline_keyboards
+from handlers.admin.functions.admin_help_func import *
+from keyboard.keyboard_builder import make_row_keyboards
 
 router = Router()
 
@@ -15,7 +16,7 @@ async def handle_subscription_check(message: Message, groups):
 
     list_admins = get_admin_list()
     if message.from_user.id in list_admins:
-        await message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main_admin))
+        await message.answer('🌟 Добро пожаловать в нашего бота! 🌟 Мы рады, что вы с нами! 😊 \n\nЧтобы узнать больше о возможностях бота и удобных командах, просто нажмите /help. 📚\n\nА пока предлагаем вам воспользоваться нашим функционалом и убедиться, как мы можем сделать вашу жизнь проще и интереснее! 🚀\n\nЕсли возникнут вопросы, не стесняйтесь обращаться — мы всегда готовы помочь! 💬✨', reply_markup=make_row_keyboards(keyboard_main_admin))
         return
 
     for i in groups:
@@ -33,7 +34,7 @@ async def handle_subscription_check(message: Message, groups):
     if keyboard:  # Если есть каналы для подписки
         await message.answer('Подпишитесь на все каналы, чтобы продолжить пользоваться ботом!', reply_markup=keyboard_subscribe)
     else:
-        await message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main))
+        await message.answer('🌟 Добро пожаловать в нашего бота! 🌟 Мы рады, что вы с нами! 😊 \n\nЧтобы узнать больше о возможностях бота и удобных командах, просто нажмите /help. 📚\n\nА пока предлагаем вам воспользоваться нашим функционалом и убедиться, как мы можем сделать вашу жизнь проще и интереснее! 🚀\n\nЕсли возникнут вопросы, не стесняйтесь обращаться — мы всегда готовы помочь! 💬✨', reply_markup=make_row_keyboards(keyboard_main))
 
 
 @router.message(CommandStart())
@@ -50,16 +51,16 @@ async def cmd_start(message: Message, state: FSMContext):
     else:
         await handle_subscription_check(message, groups)
 
-
-@router.callback_query(F.data == 'more_stop')
-async def more_send_stop(callback: CallbackQuery, state: FSMContext):
-    await state.clear()
-    list_admins = get_admin_list()
-    if callback.from_user.id in list_admins:
-        await callback.message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main_admin))
-    else:
-        await callback.message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main))
-
+#
+# @router.callback_query(F.data == 'more_stop')
+# async def more_send_stop(callback: CallbackQuery, state: FSMContext):
+#     await state.clear()
+#     list_admins = get_admin_list()
+#     if callback.from_user.id in list_admins:
+#         await callback.message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main_admin))
+#     else:
+#         await callback.message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main))
+#
 
 
 
