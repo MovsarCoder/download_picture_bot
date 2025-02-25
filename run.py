@@ -4,10 +4,10 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.methods import DeleteWebhook
 
-from config.config import TOKEN
+from config.settings import TOKEN
 from aiogram import Bot, Dispatcher
 
-from handlers.admin_panel.admin_help_func import create_tables
+from handlers.admin.functions.admin_help_func import create_tables
 from handlers.init import router
 
 
