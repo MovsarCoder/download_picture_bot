@@ -4,14 +4,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from keyboard.keyboard import *
 from States.state import *
-from handlers.admin_panel.admin_help_func import *
+from handlers.admin.functions.admin_help_func import *
 from keyboard.keyboard_builder import make_row_inline_keyboards
 
 router = Router()
 
 
 @router.message(Command('admin_panel'))
-@router.callback_query(F.data == 'admin_data')
+@router.message(F.text == '⚙️ Управление ботом')
 async def cmd_admin(callback_or_message: CallbackQuery | Message):
     admin_users_list = get_admin_list()
     if callback_or_message.from_user.id in admin_users_list:
@@ -210,8 +210,8 @@ async def back_func_2(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await callback.message.answer('❕Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
-
-@router.callback_query(F.data == 'back_data')
-async def back_func(callback: CallbackQuery, state: FSMContext):
-    await state.clear()
-    await callback.message.answer('❕Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(keyboard_main_admin))
+#
+# @router.callback_query(F.data == 'back_data')
+# async def back_func(callback: CallbackQuery, state: FSMContext):
+#     await state.clear()
+#     await callback.message.answer('❕Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(keyboard_main_admin))
