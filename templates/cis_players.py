@@ -153,7 +153,7 @@ def get_player_vip_panel(data):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT COUNT(*) FROM vip_panel WHERE telegram_id = ?
+        SELECT COUNT(*) FROM vip WHERE telegram_id = ?
     """, (data['telegram_id'],))
 
     tasks = cursor.fetchall()[0][0]  # Извлекаем значение из кортежа
@@ -173,7 +173,7 @@ def add_new_user_vip_panel(data):
     else:
         print('человек добавлен')
         cursor.execute("""
-            INSERT INTO vip_panel (telegram_id, name) VALUES (?, ?)
+            INSERT INTO vip (telegram_id, name) VALUES (?, ?)
         """, (data['telegram_id'], data['name']))  # Передаем оба значения
 
         conn.commit()  # Не забудьте зафиксировать изменения
