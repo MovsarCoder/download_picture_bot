@@ -12,10 +12,10 @@ async def save_to_csv(product_id, product_name, product_brand, product_feedbacks
     # Проверяем, существует ли файл
     df = pd.read_csv(f'{filename}.csv')
 
-    # Проверяем, существует ли уже запись с таким же id
-    if not df[df['id'] == product_id].empty:
-        print(f"Продукт с id {product_id} уже существует.")
-        return
+    # # Проверяем, существует ли уже запись с таким же id
+    # if not df[df['id'] == product_id].empty:
+    #     print(f"Продукт с id {product_id} уже существует.")
+    #     return
 
     # Добавляем новую строку
     new_row = {

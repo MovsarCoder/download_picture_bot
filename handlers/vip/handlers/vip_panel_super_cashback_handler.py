@@ -5,10 +5,10 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, BufferedInputFile
 from States.state import WildberriesCashback
-from config.config import ADMIN
+from config.settings import ADMIN
 from keyboard.keyboard import more_xlsx_super_product_keyboard, show_vip_keyboard
 from keyboard.keyboard_builder import make_row_inline_keyboards
-from handlers.vip_panel.functions.vip_panel_super_cashback_func import main
+from handlers.vip.functions.vip_panel_super_cashback_func import main
 
 router = Router()
 
@@ -33,11 +33,11 @@ async def feedback_super_cashback_requests_data_fsm(message: Message, state: FSM
     await message.answer(f'⚙️ Парсер начал работу...')
 
     name_product = data['name_product']
-    await main(name_product)
 
     # Получаем администратора для бота
     admin = ADMIN
     start_time = time.time()
+    await main(name_product)
     end_time = time.time()
     show_time = int(end_time - start_time)
 

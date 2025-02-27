@@ -12,10 +12,10 @@ async def save_to_csv(product_id, product_name, product_brand, product_feedbacks
     # Проверяем, существует ли файл
     df = pd.read_csv(f'{filename}.csv')
 
-    # Проверяем, существует ли уже запись с таким же id
-    if not df[df['id'] == product_id].empty:
-        print(f"Продукт с id {product_id} уже существует.")
-        return
+    # # Проверяем, существует ли уже запись с таким же id
+    # if not df[df['id'] == product_id].empty:
+    #     print(f"Продукт с id {product_id} уже существует.")
+    #     return
 
     # Добавляем новую строку
     new_row = {
@@ -40,13 +40,13 @@ async def save_to_csv(product_id, product_name, product_brand, product_feedbacks
     # print("Файл успешно сохранен.")
 
 
-
 async def create_params(page: int, search_item: str):
     return {
         'ab_testid': 'boost_promo_5',
         'appType': '1',
         'curr': 'rub',
         'dest': '-1257786',
+        'ffeedbackpoints': '1',
         'hide_dtype': '10',
         'lang': 'ru',
         'page': str(page),
@@ -70,13 +70,9 @@ async def fetch_total_results(search_item):
 
 
 async def main(search_item):
-    await create_csv(search_item)  # Создаем CSV файл один раз в начале
-    # total_results = await fetch_total_results(search_item)
-    # Полное количество страниц
-    # total_pages = (total_results // 100) + 2
-
-    # Спарсим только 20 страниц
-    total_pages = 20
+    await create_csv(search_item)  # Создаем Excel файл один раз в начале
+    total_results = await fetch_total_results(search_item)
+    total_pages = (total_results // 100) + 2
 
     all_products = []  # Список для хранения всех товаров
 
@@ -114,24 +110,26 @@ async def main(search_item):
                     supplier_rating = product.get('supplierRating', 0)
                     entity = product.get('entity', 'Неизвестно')
 
-                    # Добавляем товар в список
-                    all_products.append({
-                        'id': product_id,
-                        'name': name,
-                        'brand': product_brand,
-                        'feedbacks': product_feedbacks,
-                        'price': price,
-                        'feedbackPoints': feedback_points,
-                        'url': create_url,
-                        'rating': product_rating,
-                        'supplier': supplier,
-                        'supplierRating': supplier_rating,
-                        'entity': entity
-                    })
+                    # Проверяем, что feedbackPoints >= price
+                    if feedback_points >= price // 2 and feedback_points > (price * 0.25) / 2:
+                        # if min(price):
+                        # Добавляем товар в список
+                        all_products.append({
+                            'id': product_id,
+                            'name': name,
+                            'brand': product_brand,
+                            'feedbacks': product_feedbacks,
+                            'price': price,
+                            'feedbackPoints': feedback_points,
+                            'url': create_url,
+                            'rating': product_rating,
+                            'supplier': supplier,
+                            'supplierRating': supplier_rating,
+                            'entity': entity
+                        })
 
                 except Exception as e:
                     print(f"Ошибка в обработке продукта {product_id}: {e}")
-
         else:
             print(f"Ошибка при запросе страницы {page}: {response.status_code}")
 
