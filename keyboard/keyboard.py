@@ -27,6 +27,11 @@ keyboard_main = [
 
 
 
+
+
+
+
+
 admin_panel_keyboard = [
     ("📢 Создать рассылку", "broadcast_message"),
     ("➕ Добавить админа", "new_admin_data"),
@@ -48,6 +53,12 @@ back_keyboard = [
 
 
 
+
+
+
+
+
+
 # Клавиатура для загрузки другого товара (изображение)
 more_keyboard = [
     ("🔄 Новый товар", "more_download_picture"),
@@ -57,6 +68,8 @@ more_keyboard = [
 more_keyboard_video = [
     ("🔄 Новый товар", "more_download_video"),
 ]
+
+
 
 
 
