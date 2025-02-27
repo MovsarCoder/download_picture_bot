@@ -175,11 +175,9 @@ def add_new_user_vip_panel(data):
     cursor = conn.cursor()
 
     if get_player_vip_panel(data):
-        print('Такой пользователь уже есть')
         conn.close()
         return False
     else:
-        print('человек добавлен')
         cursor.execute("""
             INSERT INTO vip_panel (telegram_id, name) VALUES (?, ?)
         """, (data['telegram_id'], data['name']))  # Передаем оба значения
