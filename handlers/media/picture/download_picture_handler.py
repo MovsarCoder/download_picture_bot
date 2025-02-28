@@ -2,7 +2,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 
-from handlers.download_puctire_and_video.picture.download_picture_func import get_product_info
+from handlers.media.picture.download_picture_func import get_product_info
 from keyboard.keyboard import more_keyboard
 from aiogram import F, Router
 import asyncio
@@ -12,9 +12,9 @@ from keyboard.keyboard_builder import make_row_inline_keyboards
 router = Router()
 
 
-@router.callback_query(F.data == 'download_picture_data')
-async def download_picture_func(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer('Вставьте ссылку или напишите артикул товара. Например: ```https://www.wildberries.ru/catalog/124302874/detail.aspx``` Или ```124302874``` ',
+@router.message(F.text == '🛍️ Информация о товаре')
+async def download_picture_func(message: Message, state: FSMContext):
+    await message.answer('Вставьте ссылку или напишите артикул товара. Например: ```https://www.wildberries.ru/catalog/124302874/detail.aspx``` Или ```124302874``` ',
                                   parse_mode=ParseMode.MARKDOWN)
     await state.set_state(Wildberries.download_picture)
 
