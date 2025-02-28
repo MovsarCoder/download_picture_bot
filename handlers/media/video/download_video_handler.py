@@ -2,7 +2,7 @@ from aiogram import F, Router
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
-from handlers.download_puctire_and_video.video.download_video_func import construct_host_v2
+from handlers.media.video.download_video_func import construct_host_v2
 from keyboard.keyboard import more_keyboard_video
 import requests
 from States.state import *
@@ -11,9 +11,9 @@ from keyboard.keyboard_builder import make_row_inline_keyboards
 router = Router()
 
 
-@router.callback_query(F.data == 'download_video_data')
-async def send_download_video_data(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer('Вставьте ссылку или напишите артикул товара. Например: ```https://www.wildberries.ru/catalog/124302874/detail.aspx``` Или ```124302874``` ',
+@router.message(F.text == '📥 Скачать видео')
+async def send_download_video_data(message: Message, state: FSMContext):
+    await message.answer('Вставьте ссылку или напишите артикул товара. Например: ```https://www.wildberries.ru/catalog/124302874/detail.aspx``` Или ```124302874``` ',
                                   parse_mode=ParseMode.MARKDOWN)
     await state.set_state(Wildberries.download_video)
 
