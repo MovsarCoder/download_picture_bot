@@ -1,154 +1,168 @@
-import pandas as pd
-import requests
+import asyncio
+import aiohttp
+import aiofiles
+import json
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, как Gecko) Chrome/119.0.0.0 Safari/537.36",
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "ru,en;q=0.9",
+    "Referer": "https://www.wildberries.ru/",
+}
+
+BASE_URL = "https://search.wb.ru/exactmatch/ru/common/v9/search"
 
 
 async def create_csv(filename):
-    # Создаем DataFrame с заголовками
-    df = pd.DataFrame(columns=['id', 'name', 'brand', 'feedbacks', 'price', 'feedbackPoints', 'url', 'rating', 'supplier', 'supplierRating', 'entity'])
-    df.to_csv(f'{filename}.csv', index=False, sep=',', encoding='utf-8')
+    """Создаёт CSV-файл с заголовками, если его нет."""
+    async with aiofiles.open(f"{filename}.csv", mode="w", encoding="utf-8", newline="") as f:
+        await f.write("id,name,brand,feedbacks,price,feedbackPoints,url,rating,supplier,supplierRating,entity\n")
 
 
-async def save_to_csv(product_id, product_name, product_brand, product_feedbacks, product_price, feedback_points, product_url, product_rating, supplier, supplier_rating, entity, filename):
-    # Проверяем, существует ли файл
-    df = pd.read_csv(f'{filename}.csv')
-
-    # # Проверяем, существует ли уже запись с таким же id
-    # if not df[df['id'] == product_id].empty:
-    #     print(f"Продукт с id {product_id} уже существует.")
-    #     return
-
-    # Добавляем новую строку
-    new_row = {
-        'id': product_id,
-        'name': product_name,
-        'brand': product_brand,
-        'feedbacks': product_feedbacks,
-        'price': product_price,
-        'feedbackPoints': feedback_points,
-        'url': product_url,
-        'rating': product_rating,
-        'supplier': supplier,
-        'supplierRating': supplier_rating,
-        'entity': entity
-    }
-
-    # Добавляем новую строку в DataFrame
-    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-
-    # Сохраняем DataFrame обратно в CSV файл
-    df.to_csv(f'{filename}.csv', index=False, sep=',')
-    # print("Файл успешно сохранен.")
-
-
-async def create_params(page: int, search_item: str):
-    return {
-        'ab_testid': 'boost_promo_5',
-        'appType': '1',
-        'curr': 'rub',
-        'dest': '-1257786',
-        'ffeedbackpoints': '1',
-        'hide_dtype': '10',
-        'lang': 'ru',
-        'page': str(page),
-        'query': f'{search_item}',
-        'resultset': 'catalog',
-        'sort': 'popular',
-        'spp': '30',
-        'suppressSpellcheck': 'false',
-    }
+async def save_to_csv(products, filename):
+    """Записывает список товаров в CSV-файл за один раз."""
+    async with aiofiles.open(f"{filename}.csv", mode="a", encoding="utf-8", newline="") as f:
+        for product in products:
+            row = ",".join(map(str, [
+                product["id"], product["name"], product["brand"], product["feedbacks"],
+                product["price"], product["feedbackPoints"], product["url"],
+                product["rating"], product["supplier"], product["supplierRating"], product["entity"]
+            ])) + "\n"
+            await f.write(row)
 
 
 async def fetch_total_results(search_item):
-    initial_params = await create_params(1, search_item)
-    response = requests.get('https://search.wb.ru/exactmatch/ru/common/v9/search', params=initial_params)
+    """Определяет общее количество товаров и рассчитывает число страниц."""
+    params = {
+        "ab_testid": "boost_promo_5",
+        "appType": "1",
+        "curr": "rub",
+        "dest": "-1257786",
+        "ffeedbackpoints": "1",
+        "hide_dtype": "10",
+        "lang": "ru",
+        "page": "1",
+        "query": search_item,
+        "resultset": "catalog",
+        "sort": "popular",
+        "spp": "30",
+        "suppressSpellcheck": "false",
+    }
 
-    if response.status_code == 200:
-        return response.json()['data']['total']
-    else:
-        print(f"Ошибка при получении данных: {response.status_code}")
-        return 0
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(BASE_URL, params=params, headers=HEADERS, timeout=10) as response:
+                if response.status == 200:
+                    text = await response.text()
+                    try:
+                        data = json.loads(text)  # Принудительно парсим JSON из текста
+                        total_results = data.get("data", {}).get("total", 0)
+                        return (total_results // 100) + 2
+                    except json.JSONDecodeError:
+                        print("[Ошибка] Сервер вернул некорректный JSON. Пропускаем.")
+                        return 0
+                else:
+                    print(f"[Ошибка] Не удалось получить количество товаров: {response.status}")
+                    return 0
+        except Exception as e:
+            print(f"[Ошибка] Ошибка при получении общего количества товаров: {e}")
+            return 0
+
+
+async def fetch_page(session, page, search_item):
+    """Запрашивает страницу товаров и парсит JSON."""
+    params = {
+        "ab_testid": "boost_promo_5",
+        "appType": "1",
+        "curr": "rub",
+        "dest": "-1257786",
+        "ffeedbackpoints": "1",
+        "hide_dtype": "10",
+        "lang": "ru",
+        "page": str(page),
+        "query": search_item,
+        "resultset": "catalog",
+        "sort": "popular",
+        "spp": "30",
+        "suppressSpellcheck": "false",
+    }
+
+    try:
+        async with session.get(BASE_URL, params=params, headers=HEADERS, timeout=10) as response:
+            if response.status != 200:
+                print(f"[Ошибка] Код ответа {response.status} на странице {page}. Пропускаем.")
+                return []
+
+            text = await response.text()
+            try:
+                data = json.loads(text)
+                products = data.get("data", {}).get("products", [])
+            except json.JSONDecodeError:
+                print(f"[Ошибка] Сервер вернул некорректный JSON на странице {page}. Пропускаем.")
+                return []
+
+            parsed_products = []
+            for product in products:
+                product_id = product.get("id", 0)
+                name = product.get("name", "Неизвестно")
+                create_url = f"https://www.wildberries.ru/catalog/{product_id}/detail.aspx"
+
+                # Проверяем наличие цены
+                if "sizes" in product and product["sizes"]:
+                    price = product["sizes"][0].get("price", {}).get("product", 0) // 100
+                    if price == 0:
+                        print(f"У продукта {product_id} отсутствует цена. Пропускаем.")
+                        continue
+                else:
+                    print(f"У продукта {product_id} отсутствует массив 'sizes'. Пропускаем.")
+                    continue
+
+                feedback_points = product.get("feedbackPoints", 0)
+
+                # Фильтр по feedbackPoints
+                if feedback_points >= price // 2 and feedback_points > (price * 0.25) / 2:
+                    parsed_products.append({
+                        "id": product_id,
+                        "name": name,
+                        "brand": product.get("brand", "Неизвестно"),
+                        "feedbacks": product.get("feedbacks", 0),
+                        "price": price,
+                        "feedbackPoints": feedback_points,
+                        "url": create_url,
+                        "rating": product.get("reviewRating", 0),
+                        "supplier": product.get("supplier", "Неизвестно"),
+                        "supplierRating": product.get("supplierRating", 0),
+                        "entity": product.get("entity", "Неизвестно"),
+                    })
+
+            return parsed_products
+
+    except Exception as e:
+        print(f"[Ошибка] Не удалось обработать страницу {page}: {e}")
+        return []
 
 
 async def main(search_item):
-    await create_csv(search_item)  # Создаем Excel файл один раз в начале
-    total_results = await fetch_total_results(search_item)
-    total_pages = (total_results // 100) + 2
+    """Основная функция парсинга Wildberries."""
+    await create_csv(search_item)  # Создаём CSV файл
 
-    all_products = []  # Список для хранения всех товаров
+    total_pages = await fetch_total_results(search_item)
+    if total_pages == 0:
+        print("[Ошибка] Не удалось определить количество страниц.")
+        return
 
-    for page in range(1, total_pages):
-        print(f'Страница: {page}')
+    print(f"Будет спарсено {total_pages} страниц...")
 
-        params = await create_params(page, search_item)
-        response = requests.get('https://search.wb.ru/exactmatch/ru/common/v9/search', params=params)
+    async with aiohttp.ClientSession() as session:
+        tasks = [fetch_page(session, page, search_item) for page in range(1, total_pages + 1)]
+        all_results = await asyncio.gather(*tasks)
 
-        if response.status_code == 200:
-            products = response.json()['data']['products']
+    # Собираем все товары в один список
+    all_products = [p for products in all_results for p in products if products]
 
-            for product in products:
-                # Проверяем существование полей sizes и price
-                name = product.get('name', 'Неизвестно')
-                product_id = product.get('id', 0)
-                create_url = f'https://www.wildberries.ru/catalog/{product_id}/detail.aspx'
-                try:
-                    if "sizes" in product and product["sizes"]:
-                        if "price" in product["sizes"][0]:
-                            price = product["sizes"][0]["price"]["product"] // 100
-                        else:
-                            print(f"У продукта {product_id} отсутствует ключ 'price'. Пропускаем.")
-                            continue
-                    else:
-                        print(f"У продукта {product_id} отсутствует массив 'sizes'. Пропускаем.")
-                        continue
+    if all_products:
+        # Сортируем товары по цене перед записью
+        all_products.sort(key=lambda x: x["price"])
+        await save_to_csv(all_products, search_item)  # Сохраняем все товары за один раз
 
-                    product_feedbacks = product.get('feedbacks', 0)
-                    feedback_points = product.get('feedbackPoints', 0)
-                    product_brand = product.get('brand', 'Неизвестно')
-                    product_rating = product.get('reviewRating', 0)
 
-                    supplier = product.get('supplier', 'Неизвестно')
-                    supplier_rating = product.get('supplierRating', 0)
-                    entity = product.get('entity', 'Неизвестно')
-
-                    # Проверяем, что feedbackPoints >= price
-                    if feedback_points >= price // 2 and feedback_points > (price * 0.25) / 2:
-                        # if min(price):
-                        # Добавляем товар в список
-                        all_products.append({
-                            'id': product_id,
-                            'name': name,
-                            'brand': product_brand,
-                            'feedbacks': product_feedbacks,
-                            'price': price,
-                            'feedbackPoints': feedback_points,
-                            'url': create_url,
-                            'rating': product_rating,
-                            'supplier': supplier,
-                            'supplierRating': supplier_rating,
-                            'entity': entity
-                        })
-
-                except Exception as e:
-                    print(f"Ошибка в обработке продукта {product_id}: {e}")
-        else:
-            print(f"Ошибка при запросе страницы {page}: {response.status_code}")
-
-    # Сортируем товары по цене
-    all_products.sort(key=lambda x: x['price'])
-
-    # Сохраняем отсортированные товары в CSV
-    for product in all_products:
-        await save_to_csv(
-            product['id'],
-            product['name'],
-            product['brand'],
-            product['feedbacks'],
-            product['price'],
-            product['feedbackPoints'],
-            product['url'],
-            product['rating'],
-            product['supplier'],
-            product['supplierRating'],
-            product['entity'],
-            search_item
-        )
