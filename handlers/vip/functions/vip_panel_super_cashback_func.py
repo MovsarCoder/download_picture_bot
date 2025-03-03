@@ -151,7 +151,7 @@ async def main(search_item):
         print("[Ошибка] Не удалось определить количество страниц.")
         return
 
-    print(f"Будет спарсено {total_pages} страниц...")
+    # print(f"Будет спарсено {total_pages} страниц...")
 
     async with aiohttp.ClientSession() as session:
         tasks = [fetch_page(session, page, search_item) for page in range(1, total_pages + 1)]
