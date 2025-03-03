@@ -63,7 +63,7 @@ def write_user(fullname, firstname, lastname, telegram_id):
         """, data)
         conn.commit()
     except sqlite3.IntegrityError:
-        print(f"Пользователь с telegram_id {telegram_id} уже существует.")
+        return
     finally:
         conn.close()
 
@@ -76,7 +76,25 @@ def user_exists(telegram_id):
     exists = cursor.fetchone() is not None
 
     conn.close()
-    return exists
+    return
+
+
+def select_to_table(telegram_id: int):
+    conn = sqlite3.connect(database_url)
+    cur = conn.cursor()
+    cur.execute("""SELECT * FROM users WHERE telegram_id = ?""", (telegram_id,))
+    get_info = cur.fetchone()
+    conn.close()
+    return_info = {
+        "id": get_info[0],
+        "fullname": get_info[1],
+        "firstname": get_info[2],
+        "lastname": get_info[3],
+        "telegram_id": get_info[4],
+        "sign_up_people": get_info[5],
+    }
+    return return_info
+
 
 
 def add_admin(telegram_id):

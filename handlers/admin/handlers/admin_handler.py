@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from keyboard.keyboard import *
 from States.state import *
-from handlers.admin.functions.admin_help_func import *
+from database.crud import *
 from keyboard.keyboard_builder import make_row_inline_keyboards
 
 router = Router()
@@ -12,7 +12,8 @@ router = Router()
 
 @router.message(Command('admin_panel'))
 @router.message(F.text == '⚙️ Управление ботом')
-async def cmd_admin(callback_or_message: CallbackQuery | Message):
+async def cmd_admin(callback_or_message: CallbackQuery | Message, state: FSMContext):
+    await state.clear()
     admin_users_list = get_admin_list()
     if callback_or_message.from_user.id in admin_users_list:
         if isinstance(callback_or_message, CallbackQuery):

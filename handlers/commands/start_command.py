@@ -4,7 +4,7 @@ from aiogram import Router
 from aiogram.fsm.context import FSMContext
 
 from keyboard.keyboard import *
-from handlers.admin.functions.admin_help_func import *
+from database.crud import *
 from keyboard.keyboard_builder import make_row_keyboards
 
 router = Router()

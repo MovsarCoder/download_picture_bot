@@ -5,8 +5,10 @@ router = Router()
 
 from handlers.commands.start_command import router as start_command
 from handlers.commands.help_command import router as help_command
+from handlers.commands.profile_command import router as profile_command
 router.include_router(start_command)
 router.include_router(help_command)
+router.include_router(profile_command)
 
 
 from handlers.media.picture.download_picture_handler import router as picture_handler

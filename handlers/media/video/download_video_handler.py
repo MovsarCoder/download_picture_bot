@@ -28,6 +28,7 @@ async def fsm_send_download_video(message: Message, state: FSMContext):
     if not func_return_url_video:
         await message_sabr.delete()
         await message.answer('Ошибка: Неверный ID или тип видео.', reply_markup=make_row_inline_keyboards(more_keyboard_video))
+        await state.clear()
         return
 
     try:
@@ -44,9 +45,12 @@ async def fsm_send_download_video(message: Message, state: FSMContext):
     except requests.RequestException as req_err:
         await message_sabr.delete()
         await message.answer(f'Сетевая ошибка: {req_err}')
+        await state.clear()
+
     except Exception as e:
         await message_sabr.delete()
         await message.answer(f'Неизвестная ошибка: {e}')
+        await state.clear()
 
 
 @router.callback_query(F.data == 'more_download_video')

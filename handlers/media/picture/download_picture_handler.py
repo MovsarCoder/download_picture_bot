@@ -30,6 +30,7 @@ async def download_picture_func_fsm(message: Message, state: FSMContext):
     if not result:
         await waiting_message.delete()
         await message.answer('Не удалось получить информацию о товаре. Необходимо отправить ссылку без текстового описания.')
+        await state.clear()
         return
 
     # Распаковка данных
@@ -72,6 +73,8 @@ async def download_picture_func_fsm(message: Message, state: FSMContext):
 
     except Exception as e:
         await message.answer(f'Ошибка: {e}! Проверьте валидность ссылки или что-то!')
+        await state.clear()
+
 
 
 @router.callback_query(F.data == 'more_download_picture')

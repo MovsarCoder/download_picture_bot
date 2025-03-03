@@ -7,7 +7,7 @@ from aiogram.methods import DeleteWebhook
 from config.settings import TOKEN
 from aiogram import Bot, Dispatcher
 
-from handlers.admin.functions.admin_help_func import create_tables
+from database.crud import create_tables
 from handlers.init import router
 
 
