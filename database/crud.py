@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime
 
-database_url = '/Users/mansur/Desktop/download_picture_bot2/database/database.db'
+database_url = '../database/database.db'
 
 
 def create_tables():
