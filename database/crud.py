@@ -76,7 +76,7 @@ def user_exists(telegram_id):
     exists = cursor.fetchone() is not None
 
     conn.close()
-    return
+    return exists
 
 
 def select_to_table(telegram_id: int):
@@ -174,35 +174,46 @@ def load_groups():
 
 
 def get_player_vip_panel(data):
-    conn = sqlite3.connect(database_url)
-    cursor = conn.cursor()
+    try:
+        conn = sqlite3.connect(database_url)
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT COUNT(*) FROM vip_panel WHERE telegram_id = ?
-    """, (data['telegram_id'],))
+        cursor.execute("""
+            SELECT COUNT(*) FROM vip_panel WHERE telegram_id = ?
+        """, (data['telegram_id'],))
 
-    tasks = cursor.fetchall()[0][0]  # Извлекаем значение из кортежа
-
-    conn.close()  # Закрываем соединение с базой данных
-
-    return tasks > 0
-
-
-def add_new_user_vip_panel(data):
-    conn = sqlite3.connect(database_url)
-    cursor = conn.cursor()
-
-    if get_player_vip_panel(data):
+        result = cursor.fetchone()[0]  # Получаем количество записей
         conn.close()
+
+        return result > 0  # Возвращаем True, если пользователь уже существует
+    except Exception as e:
+        print(f"Ошибка при проверке пользователя: {e}")
         return False
-    else:
+
+
+
+# Добавление нового пользователя в базу данных
+def add_new_user_vip_panel(data):
+    try:
+        conn = sqlite3.connect(database_url)
+        cursor = conn.cursor()
+
+        # Проверяем, существует ли пользователь
+        if get_player_vip_panel(data):
+            conn.close()
+            return False
+
+        # Добавляем пользователя
         cursor.execute("""
             INSERT INTO vip_panel (telegram_id, name) VALUES (?, ?)
-        """, (data['telegram_id'], data['name']))  # Передаем оба значения
+        """, (data['telegram_id'], data['name']))
 
-        conn.commit()  # Не забудьте зафиксировать изменения
-        conn.close()  # Закрываем соединение с базой данных
-        return True  # Возвращаем True, если пользователь был добавлен
+        conn.commit()
+        conn.close()
+        return True  # Возвращаем True, если пользователь успешно добавлен
+    except Exception as e:
+        print(f"Ошибка при добавлении пользователя: {e}")
+        return False
 
 
 def delete_users_with_vip_panel_functions(data):
