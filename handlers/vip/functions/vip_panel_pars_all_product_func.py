@@ -97,7 +97,7 @@ async def main(search_item):
 
     total_pages = 20  # Ограничиваем 20 страниц для скорости
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
         tasks = [fetch_page(session, page, search_item) for page in range(1, total_pages)]
         all_results = await asyncio.gather(*tasks)
 

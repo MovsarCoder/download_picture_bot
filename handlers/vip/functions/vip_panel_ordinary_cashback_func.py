@@ -49,7 +49,7 @@ async def fetch_total_results(search_item):
         "suppressSpellcheck": "false",
     }
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
         try:
             async with session.get(BASE_URL, params=params, headers=HEADERS, timeout=10) as response:
                 if response.status == 200:
@@ -148,7 +148,7 @@ async def main(search_item):
         return
 
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
         tasks = [fetch_page(session, page, search_item) for page in range(1, total_pages + 1)]
         all_results = await asyncio.gather(*tasks)
 
