@@ -2,7 +2,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 
-from handler.media.picture.download_picture_func import get_product_info
+from handlers.media.picture.download_picture_func import get_product_info
 from keyboard.keyboard import more_keyboard
 from aiogram import F, Router
 import asyncio
