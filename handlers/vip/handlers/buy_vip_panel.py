@@ -1,19 +1,17 @@
 from datetime import datetime
-
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, PreCheckoutQuery, CallbackQuery
-
-from States.state import BuyVipPanel
 from config.settings import PAYMENT_DETAILS, VIP_SUBSCRIPTION_PRICE, SENDING_RECEIPT, ADMIN
-
-from config.settings import PAYMENT_TOKEN, PRICE
+from keyboard.keyboard import make_pay
+from States.state import BuyVipPanel
 from database.crud import add_new_user_vip_panel
+
 from keyboard.keyboard import show_vip_keyboard, accept_or_cancel_cheque
 from keyboard.keyboard_builder import make_row_inline_keyboards
+from config.settings import PAYMENT_TOKEN, PRICE
 
 router = Router()
-
 
 # ##########################################################################
 # # ---------- Покупка "VIP-панели" с помощью нажатия кнопки ---------- ####
@@ -87,14 +85,11 @@ router = Router()
 # ##########################################################################
 
 
+
 # Обработка кнопки "Купить VIP-панель"
 @router.callback_query(F.data == 'buy_vip_panel_data')
 async def buy_vip_panel(callback: CallbackQuery, state: FSMContext):
-    # Очищаем состояние перед началом нового процесса
     await state.clear()
-
-    # Сохраняем данные пользователя в состоянии
-    await state.update_data(telegram_id=callback.from_user.id, username=callback.from_user.username)
 
     await callback.message.answer(f"""
     💳 Для оплаты <b>VIP</b> подписки, пожалуйста, переведите сумму <b>{VIP_SUBSCRIPTION_PRICE}</b> на следующие реквизиты:
@@ -114,7 +109,6 @@ async def buy_vip_panel(callback: CallbackQuery, state: FSMContext):
 # Обработка отправленного чека
 @router.message(BuyVipPanel.get_photo, F.content_type.in_({"text", "photo", "video", "document"}))
 async def send_receipt(message: Message, state: FSMContext):
-    data = await state.get_data()
     user_info = f"""
     TELEGRAM_ID - {message.from_user.id}\n
     USERNAME - @{message.from_user.username or None}\n
@@ -125,99 +119,98 @@ async def send_receipt(message: Message, state: FSMContext):
     Подпись сообщения - {message.caption if message.caption else None}
     """
 
-    us_id = data['telegram_id']
-    username = data['username']
+    username = message.from_user.username or None
+
+    for i in SENDING_RECEIPT:
+        try:
+            if message.text:
+                await message.answer(f"❌Не удалось отправить чек для проверки оплаты!\n\n🛠️Связь с тех. оператором: {ADMIN}")
+            elif message.photo:
+                 await message.bot.send_photo(
+                    chat_id=int(i),
+                    photo=message.photo[-1].file_id,
+                    caption=user_info,
+                    reply_markup=make_pay(message.from_user.id, username))
+            elif message.video:
+                 await message.bot.send_video(
+                    chat_id=int(i),
+                    video=message.video.file_id,
+                    caption=user_info,
+                    reply_markup=make_pay(message.from_user.id, username))
+            elif message.document:
+                await message.bot.send_document(
+                    chat_id=int(i),
+                    document=message.document.file_id,
+                    caption=user_info,
+                    reply_markup=make_pay(message.from_user.id, username))
+            else:
+                await message.answer('Ошибка неизвестного типа! (234567-4345)')
+
+        except Exception as e:
+            await message.answer(f"❌Не удалось отправить чек для проверки оплаты! - {e}\n\n🛠️Связь с тех. оператором: {ADMIN}")
+
+    await message.bot.send_message(chat_id=message.from_user.id, text=f"""
+    📨 <b>Ваш чек успешно получен!</b> 
+    Спасибо за отправку! Мы уже начали проверку вашего платежа.  
+
+    ⏳ Пожалуйста, подождите немного, пока мы подтвердим оплату. Обычно это занимает несколько минут.  
+
+    ✅ Как только оплата будет подтверждена, вы получите уведомление и будете добавлены в <b>VIP Panel</b>!  
+
+    🙏 Благодарим за ваше терпение! Если у вас есть вопросы, не стесняйтесь обращаться.  
+
+    🛠️Связь с тех. оператором: {ADMIN}
+            """)
+    await state.clear()
+
+
+# Обработка подтверждения оплаты администратором
+@router.callback_query(F.data.startswith('accept_cheque'))
+async def accept_cheque_function(callback: CallbackQuery, state: FSMContext):
+    parts = callback.data.split('_', maxsplit=3)
 
     vip_panel_information = {
-        'telegram_id': us_id,
-        'name': username,
+        "telegram_id": parts[2],
+        "name": parts[3]
     }
 
     print(vip_panel_information)
+    if add_new_user_vip_panel(vip_panel_information):
+        await callback.message.answer('✅ Пользователь успешно добавлен в базу данных VIP!')
+        await callback.bot.send_message(chat_id=parts[2], text=f"""
+        🎉 <b>Оплата подтверждена!</b>
+        Ваш чек успешно проверен, и оплата подтверждена.
 
-    try:
-        if message.text:
-            await message.answer(f"❌Не удалось отправить чек для проверки оплаты!\n\n🛠️Связь с тех. оператором: {ADMIN}")
-        elif message.photo:
-            await message.bot.send_photo(
-                chat_id=int(SENDING_RECEIPT),
-                photo=message.photo[-1].file_id,
-                caption=user_info,
-                reply_markup=make_row_inline_keyboards(accept_or_cancel_cheque)
-            )
-        elif message.video:
-            await message.bot.send_video(
-                chat_id=int(SENDING_RECEIPT),
-                video=message.video.file_id,
-                caption=user_info,
-                reply_markup=make_row_inline_keyboards(accept_or_cancel_cheque)
-            )
-        elif message.document:
-            await message.bot.send_document(
-                chat_id=int(SENDING_RECEIPT),
-                document=message.document.file_id,
-                caption=user_info,
-                reply_markup=make_row_inline_keyboards(accept_or_cancel_cheque)
-            )
-        else:
-            await message.answer('Ошибка неизвестного типа! (234567-4345)')
+        ✅ Теперь вы добавлены в <b>VIP Panel</b>!
+        Наслаждайтесь всеми преимуществами VIP-статуса.
 
-        # Обработка подтверждения оплаты администратором
-        @router.callback_query(F.data == 'accept_cheque')
-        async def accept_cheque_function(callback: CallbackQuery, state: FSMContext):
-            print(vip_panel_information)
-            if add_new_user_vip_panel(vip_panel_information):
-                await callback.answer('✅ Пользователь успешно добавлен в базу данных VIP!')
-                await callback.bot.send_message(chat_id=data['telegram_id'], text=f"""
-                🎉 <b>Оплата подтверждена!</b>
-                Ваш чек успешно проверен, и оплата подтверждена.  
+        🙏 Спасибо за вашу оплату! Если у вас есть вопросы, не стесняйтесь обращаться.
 
-                ✅ Теперь вы добавлены в <b>VIP Panel</b>!  
-                Наслаждайтесь всеми преимуществами VIP-статуса.  
+        🛠️Связь с тех. оператором: {ADMIN}""")
+    else:
+        await callback.message.answer('❌ Пользователь уже находится в базе данных!')
 
-                🙏 Спасибо за вашу оплату! Если у вас есть вопросы, не стесняйтесь обращаться.  
+    await state.clear()
 
-                🛠️Связь с тех. оператором: {ADMIN}""")
-            else:
-                await callback.answer('❌ Пользователь уже находится в базе данных!')
 
-            await state.clear()
+# Обработка отмены оплаты администратором
+@router.callback_query(F.data.startswith('cancel_cheque'))
+async def cancel_cheque_function(callback: CallbackQuery, state: FSMContext):
+    parts = callback.data.split('_', maxsplit=3)
 
-        # Обработка отмены оплаты администратором
-        @router.callback_query(F.data == 'cancel_cheque')
-        async def cancel_cheque_function(callback: CallbackQuery, state: FSMContext):
+    await callback.bot.send_message(chat_id=parts[2], text=f"""
+    ❌ <b>Оплата не подтверждена</b>
+    К сожалению, мы не смогли подтвердить ваш платеж.  
 
-            await callback.bot.send_message(chat_id=data['telegram_id'], text=f"""
-            ❌ <b>Оплата не подтверждена</b>
-            К сожалению, мы не смогли подтвердить ваш платеж.  
+    Возможные причины:  
+    - Чек нечеткий или нечитаемый.  
+    - Оплата не поступила на наш счет.  
+    - Неверные реквизиты для оплаты.  
 
-            Возможные причины:  
-            - Чек нечеткий или нечитаемый.  
-            - Оплата не поступила на наш счет.  
-            - Неверные реквизиты для оплаты.  
+    📸 Пожалуйста, проверьте данные и отправьте чек еще раз. Если проблема сохраняется, свяжитесь с нами для помощи.  
+    🛠️Связь с тех. оператором: {ADMIN}
 
-            📸 Пожалуйста, проверьте данные и отправьте чек еще раз. Если проблема сохраняется, свяжитесь с нами для помощи.  
-            🛠️Связь с тех. оператором: {ADMIN}
-
-            🙏 Спасибо за понимание!  
-            """)
-            await callback.answer('❌ Пользователь не был добавлен в базу данных VIP!')
-            await state.clear()
-
-    except Exception as e:
-        await message.answer(f"❌Не удалось отправить чек для проверки оплаты! - {e}\n\n🛠️Связь с тех. оператором: {ADMIN}")
-
-    finally:
-        await message.bot.send_message(chat_id=message.from_user.id, text=f"""
-        📨 <b>Ваш чек успешно получен!</b> 
-        Спасибо за отправку! Мы уже начали проверку вашего платежа.  
-
-        ⏳ Пожалуйста, подождите немного, пока мы подтвердим оплату. Обычно это занимает несколько минут.  
-
-        ✅ Как только оплата будет подтверждена, вы получите уведомление и будете добавлены в <b>VIP Panel</b>!  
-
-        🙏 Благодарим за ваше терпение! Если у вас есть вопросы, не стесняйтесь обращаться.  
-
-        🛠️Связь с тех. оператором: {ADMIN}
-                """)
-        await state.clear()
+    🙏 Спасибо за понимание!  
+    """)
+    await callback.message.answer('❌ Пользователь не был добавлен в базу данных VIP!')
+    await state.clear()

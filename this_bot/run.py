@@ -3,12 +3,10 @@ import logging
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.methods import DeleteWebhook
-
 from config.settings import TOKEN
 from aiogram import Bot, Dispatcher
-
-from database.crud import create_tables
-from handlers.init import router
+from database.models import create_tables
+from handlers import router
 
 
 async def main():

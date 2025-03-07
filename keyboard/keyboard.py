@@ -1,3 +1,4 @@
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 # keyboard_main_admin = [
 #     ("Получить информацию о товаре", "download_picture_data"),
 #     ("Скачать видео с товара", "download_video_data"),
@@ -82,11 +83,7 @@ buy_vip_panel_keyboard = [
     ('Купить VIP 💎', 'buy_vip_panel_data')
 ]
 
-# Клавиатура для подтверждения чека
-accept_or_cancel_cheque = [
-    ("✅Подтвердить оплату ", "accept_cheque"),
-    ("❌Отменить оплату", "cancel_cheque"),
-]
+
 
 
 # Клавиатура для VIP-функций
@@ -110,3 +107,17 @@ more_xlsx_product_keyboard = [
 more_xlsx_super_product_keyboard = [
     ("🔄 Новый запрос", "more_new_xlsx_super_product_data")  # Новый запрос для парсинга товаров с выгодным кешбеком
 ]
+
+# Клавиатура для подтверждения чека
+accept_or_cancel_cheque = [
+    ("✅Подтвердить оплату ", "accept_cheque"),
+    ("❌Отменить оплату", "cancel_cheque"),
+]
+
+
+def make_pay(user_id, name = None) -> InlineKeyboardMarkup:
+    row = [
+        [InlineKeyboardButton(text= '✅Подтвердить оплату ', callback_data=f'accept_cheque_{user_id}_{name}')],
+        [InlineKeyboardButton(text= '❌Отменить оплату ',callback_data=f'cancel_cheque_{user_id}_{name}')],
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=row)
