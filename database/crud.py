@@ -3,17 +3,17 @@ from datetime import datetime
 from config.settings import DATABASE_URL
 
 
-def write_user(fullname, firstname, lastname, telegram_id):
+def write_user(username, fullname, firstname, lastname, telegram_id):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     registration_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    data = (fullname, firstname, lastname, telegram_id, registration_date)
+    data = (username, fullname, firstname, lastname, telegram_id, registration_date)
 
     try:
         cursor.execute("""
-        INSERT INTO users (fullname, firstname, lastname, telegram_id, registration_date)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO users (username, fullname, firstname, lastname, telegram_id, registration_date)
+        VALUES (?, ?, ?, ?, ?, ?)
         """, data)
         conn.commit()
     except sqlite3.IntegrityError:

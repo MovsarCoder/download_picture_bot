@@ -45,7 +45,7 @@ async def cmd_start(message: Message, state: FSMContext):
     a = user_exists(message.from_user.id)
 
     if not a:
-        write_user(message.from_user.full_name, message.from_user.first_name, message.from_user.last_name, message.from_user.id)
+        write_user(message.from_user.username, message.from_user.full_name, message.from_user.first_name, message.from_user.last_name, message.from_user.id)
         await handle_subscription_check(message, groups)
 
     else:

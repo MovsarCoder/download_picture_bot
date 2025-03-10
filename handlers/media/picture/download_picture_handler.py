@@ -24,7 +24,7 @@ async def download_picture_func_fsm(message: Message, state: FSMContext):
     waiting_message = await message.answer('Ожидайте! Ваш запрос выполняется...')
     url = message.text
     # Получаем информацию о продукте
-    result = get_product_info(url)
+    result = await get_product_info(url)
 
     # Проверяем, вернула ли функция корректные данные
     if not result:
