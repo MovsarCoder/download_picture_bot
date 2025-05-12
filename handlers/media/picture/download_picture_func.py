@@ -3,9 +3,9 @@ import requests
 import validators
 
 
-def get_product_info(url):
+async def get_product_info(url):
     try:
-        item_id = int(__get_item_id(url))
+        item_id = int(await __get_item_id(url))
         print(f"Извлеченный item_id: {item_id}")  # Выводим item_id для проверки
         response = requests.get(
             f"https://card.wb.ru/cards/v1/detail?appType=1&curr=rub&dest=-1257786&spp=30&nm={item_id}")
@@ -83,7 +83,7 @@ def get_product_info(url):
         return False
 
 
-def __get_item_id(url):
+async def __get_item_id(url):
     if validators.url(url):
         regex = "(?<=catalog/).+(?=/detail)"
         match = re.search(regex, url)

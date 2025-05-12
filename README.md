@@ -9,3 +9,9 @@
 ![img](assets/img.png)
 ![img](assets/img_1.png)
 ![img](assets/img_2.png)
+
+
+# Стек технологий: 
+1) SQLALCHEMY ORM
+2) AIOGRAM
+3) ALEMBIC
