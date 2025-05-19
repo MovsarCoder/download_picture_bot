@@ -79,7 +79,7 @@ def get_admin_list():
     cursor = conn.cursor()
 
     cursor.execute("SELECT telegram_id FROM admin_list")
-    admin_list = [row[0] for row in cursor.fetchall()]
+    admin_list = [row for row in cursor.fetchall()]
 
     conn.close()
     return admin_list
