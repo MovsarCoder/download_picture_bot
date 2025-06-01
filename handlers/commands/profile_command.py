@@ -6,7 +6,6 @@ from database.crud import select_to_table
 from aiogram.filters import Command
 
 router = Router()
-
 @router.message(Command('profile'))
 @router.message(F.text == 'ℹ️ Личная информация')
 async def personal_information_func(message: Message):

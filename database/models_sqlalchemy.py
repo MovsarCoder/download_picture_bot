@@ -19,7 +19,6 @@ class User(Base):
     def __repr__(self):
         return f"{self.id}, {self.username}, {self.fullname}, {self.firstname}, {self.lastname}, {self.telegram_id}, {self.registration_date}"
 
-
 class Groups(Base):
     __tablename__ = 'groups_list'
 
