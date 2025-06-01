@@ -116,6 +116,7 @@ def remove_group(username):
     return success
 
 
+
 def load_groups():
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()

@@ -16,8 +16,6 @@ class User(Base):
     telegram_id = Column(Integer, unique=True, nullable=False)
     registration_date = Column(DateTime, default=datetime.utcnow, nullable=False)
 
-
-
     def __repr__(self):
         return f"{self.id}, {self.username}, {self.fullname}, {self.firstname}, {self.lastname}, {self.telegram_id}, {self.registration_date}"
 
@@ -29,7 +27,6 @@ class Groups(Base):
     username = Column(String(120), unique=True, nullable=False)
     name = Column(String(120), nullable=False)
 
-
     def __repr__(self):
         return f"id={self.id}, name='{self.name}')"
 
@@ -39,7 +36,6 @@ class Admins(Base):
 
     id = Column(Integer, primary_key=True)
     telegram_id = Column(Integer, unique=True, nullable=False)
-
 
     def __repr__(self):
         return f"id={self.id}, telegram_id={self.telegram_id}"
