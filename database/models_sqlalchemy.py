@@ -42,7 +42,7 @@ class Admins(Base):
 
 
     def __repr__(self):
-        return f"id={self.id}, telegram_id={self.telegram_id})"
+        return f"id={self.id}, telegram_id={self.telegram_id}"
 
 
 class Vip(Base):

@@ -3,8 +3,11 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncAttrs
 
 engine = create_async_engine('sqlite+aiosqlite:///users.db', echo=True, pool_size=10) # Делаем подключение
 
-# AsyncSessionLocal = sessionmaker(bind=engine, expire_on_commit=False) # Фабрика сессий
-AsyncSessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False) # Фабрика сессий
+# AsyncSessionLocal = sessionmaker(bind=engine, class_=AsyncSession expire_on_commit=False) # Фабрика сессий
+AsyncSessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False) # Асинхронная фабрика сессий
+
+class AsyncSessionLocal():
+    pass
 
 
 # Base = declarative_base()
