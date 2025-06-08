@@ -1,3 +1,6 @@
+from curses.ascii import isdigit
+from os import remove
+
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -34,15 +37,19 @@ async def new_admin_user_func(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminState.new_admin)
 async def add_admin_id(message: Message, state: FSMContext):
-    await state.update_data(id=message.text)
+    telegram_id = message.text
     try:
-        # Добавляем ID пользователя в список администраторов
-        if add_admin(message.text):
-            await message.answer(f'✅Пользователь с ID {message.text} добавлен как админ.', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
-            await state.clear()
-    # Есть такой администратор существует в базе данных!
-    except Exception as e:
+        if add_admin(telegram_id):
+            # Добавляем ID пользователя в список администраторов
+            await message.answer(f'✅Пользователь с ID {telegram_id} добавлен как админ.', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
+        else:
+            # Есть такой администратор существует в базе данных!
+            await message.answer(f'⚠️Предупреждение, администратор уже существует!')
+
+    except ValueError as e:
         await message.answer(f'❌Ошибка добавления пользователя. Ошибка: {e}', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
+
+    await state.clear()
 
 
 @router.callback_query(F.data == 'remove_admin_list_data')
@@ -54,13 +61,19 @@ async def remove_admin_func(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminState.remove_admin)
 async def remove_admin_func(message: Message, state: FSMContext):
+    telegram_id = message.text
     try:
-        remove_admin(message.text)
         # Администратор успешно удален из базы данных.
-        await message.answer(f'✅Пользователь с ID {message.text} был удален!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
-        await state.clear()
+        if remove_admin(telegram_id):
+            await message.answer(f'✅Пользователь с ID {telegram_id} был удален!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
+
+        else:
+            await message.answer(f'⚠️Предупреждение, не удалось найти администратора для удаления!')
+
     except ValueError as e:
         await message.answer(f'❌Ошибка удаления пользователя. Ошибка: {e}', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
+
+    await state.clear()
 
 
 @router.callback_query(F.data == 'add_new_group_username_data')
@@ -117,13 +130,14 @@ async def fsm_remove_group_db(message: Message, state: FSMContext):
         # Если функция remove_func возвращает True - группа удаляется и выводится сообщение
         if remove_func:
             await message.answer(f'✅Группа с Username: {message_text} успешно удалена!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
-            await state.clear()
         # Если такой группы нет.
         else:
             await message.answer('⚠️Невозможно найти группу с таким Username!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
     except KeyError as e:
         await message.answer(f'❌Ошибка типа 3453-234567 - {e}!')
+
+    await state.clear()
 
 
 @router.callback_query(F.data == 'list_group_data')
@@ -173,13 +187,13 @@ async def get_name_vip_panel(message: Message, state: FSMContext):
 
     if add_new_user_vip_panel(vip_panel_information):
         await message.answer('✅Пользователь успешно был добавлен!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
-        await state.clear()
 
     else:
         await message.answer('⚠️Такой пользователь уже существует в базе данных!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
-        await state.clear()
-        
-        
+
+    await state.clear()
+
+
 @router.callback_query(F.data == 'delete_user_with_vip_panel')
 async def delete_user_vip_panel(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
@@ -199,15 +213,16 @@ async def delete_user_vip_panel_fsm(message: Message, state: FSMContext):
 
     if delete_users_with_vip_panel_functions(data):
         await message.answer('✅Человек успешно удален из списка Vip пользователей!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
-        await state.clear()
     else:
         await message.answer('⚠️Такого пользователя нет в списке Vip пользователей!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
-        await state.clear()
+
+    await state.clear()
+
 
 @router.callback_query(F.data == 'back_data2')
 async def back_func_2(callback: CallbackQuery, state: FSMContext):
-    await state.clear()
     await callback.message.answer('❕Выберите действие', show_alert=True, reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
+    await state.clear()
 
 #
 # @router.callback_query(F.data == 'back_data')
