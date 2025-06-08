@@ -36,14 +36,12 @@ async def new_admin_user_func(callback: CallbackQuery, state: FSMContext):
 async def add_admin_id(message: Message, state: FSMContext):
     await state.update_data(id=message.text)
     try:
-        add_admin(message.text)
         # Добавляем ID пользователя в список администраторов
-
-        print('Администратор был успешно добавлен в базу данных')
-        await message.answer(f'✅Пользователь с ID {message.text} добавлен как админ.', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
-        await state.clear()
-        # Не удалось найти пользователя по данному ID
-    except ValueError as e:
+        if add_admin(message.text):
+            await message.answer(f'✅Пользователь с ID {message.text} добавлен как админ.', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
+            await state.clear()
+    # Есть такой администратор существует в базе данных!
+    except Exception as e:
         await message.answer(f'❌Ошибка добавления пользователя. Ошибка: {e}', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
 
