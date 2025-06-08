@@ -41,14 +41,14 @@ def select_to_table(telegram_id: int):
     conn.close()
     return_info = {
         "id": get_info[0],
-        "fullname": get_info[1],
-        "firstname": get_info[2],
-        "lastname": get_info[3],
-        "telegram_id": get_info[4],
-        "sign_up_people": get_info[5],
+        "username": get_info[1],
+        "fullname": get_info[2],
+        "firstname": get_info[3],
+        "lastname": get_info[4],
+        "telegram_id": get_info[5],
+        "sign_up_people": get_info[6],
     }
     return return_info
-
 
 
 def add_admin(telegram_id):
@@ -58,9 +58,10 @@ def add_admin(telegram_id):
     try:
         cursor.execute("INSERT INTO admin_list (telegram_id) VALUES (?)", (telegram_id,))
         conn.commit()
-        print("Новый администратор добавлен.")
+        return True
     except sqlite3.IntegrityError:
         print(f"Администратор с telegram_id {telegram_id} уже существует.")
+        return False
     finally:
         conn.close()
 
@@ -69,9 +70,17 @@ def remove_admin(telegram_id):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
-    cursor.execute("DELETE FROM admin_list WHERE telegram_id = ?", (telegram_id,))
-    conn.commit()
-    conn.close()
+    try:
+        cursor.execute("DELETE FROM admin_list WHERE telegram_id = ?", (telegram_id,))
+        conn.commit()
+        return True
+
+    except sqlite3.IntegrityError:
+        print(f"Администратор с telegram_id {telegram_id} не существует.")
+        return False
+
+    finally:
+        conn.close()
 
 
 def get_admin_list():
@@ -79,7 +88,7 @@ def get_admin_list():
     cursor = conn.cursor()
 
     cursor.execute("SELECT telegram_id FROM admin_list")
-    admin_list = [row for row in cursor.fetchall()]
+    admin_list = [row[0] for row in cursor.fetchall()]
 
     conn.close()
     return admin_list
@@ -116,7 +125,6 @@ def remove_group(username):
     return success
 
 
-
 def load_groups():
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
@@ -146,8 +154,6 @@ def get_player_vip_panel(data):
         return False
 
 
-
-# Добавление нового пользователя в базу данных
 def add_new_user_vip_panel(data):
     try:
         conn = sqlite3.connect(DATABASE_URL)
@@ -175,17 +181,40 @@ def delete_users_with_vip_panel_functions(data):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
-    if get_player_vip_panel(data): # Если человека нет в базе данных
-        print('Человек успешно удален!')
+    if get_player_vip_panel(data):  # Если человека нет в базе данных
         cursor.execute("""
                 DELETE FROM vip_panel WHERE telegram_id = ?
                 """, (data['telegram_id'],))
 
         conn.commit()
         conn.close()
+        print('Человек успешно удален!')
         return True
 
 
-    else: # Если такого нет в базе данных
+    else:  # Если такого нет в базе данных
         print('Такого пользователя нет в базе данных!')
         return False
+
+
+def get_chat_id():
+    """Функция для получения всех telegram_id пользователей из базы данных SQLite"""
+
+    # Подключаемся к базе данных
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    try:
+
+        # Выполняем запрос
+        cursor.execute("SELECT telegram_id FROM users")
+
+        # Получаем все результаты и преобразуем в список чисел
+        results = cursor.fetchall()
+        return [row[0] for row in results]
+
+    except sqlite3.Error as e:
+        print(f"Ошибка при получении chat_id: {e}")
+        return []
+
+    conn.close()
+
