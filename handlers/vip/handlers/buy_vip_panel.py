@@ -1,15 +1,11 @@
 from datetime import datetime
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, PreCheckoutQuery, CallbackQuery
+from aiogram.types import Message, CallbackQuery
 from config.settings import PAYMENT_DETAILS, VIP_SUBSCRIPTION_PRICE, SENDING_RECEIPT, ADMIN
 from keyboard.keyboard import make_pay
 from States.state import BuyVipPanel
 from database.crud import add_new_user_vip_panel
-
-from keyboard.keyboard import show_vip_keyboard, accept_or_cancel_cheque
-from keyboard.keyboard_builder import make_row_inline_keyboards
-from config.settings import PAYMENT_TOKEN, PRICE
 
 router = Router()
 

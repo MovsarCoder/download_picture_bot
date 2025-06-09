@@ -1,13 +1,14 @@
 import asyncio
 import logging
-from typing import Optional, Union
-
+from typing import Optional
 from sqlalchemy import select, exists
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.util import await_only
 
 from database.database_sqlalchemy import AsyncSessionLocal
-from database.models_sqlalchemy import User, Admins, Groups
+from database.models_sqlalchemy import User, Admins, Groups, Vip
+
+# Устанавливаем флаг чтобы и logging.info() отображался в терминале.
+logging.getLogger().setLevel(logging.INFO)
 
 
 async def write_user(username: str,
@@ -43,6 +44,15 @@ async def write_user(username: str,
         except SQLAlchemyError:
             await session.rollback()
             logging.warning(f"Пользователь с таким {telegram_id=} уже существует!")
+
+
+async def get_chat_id(async_session_factory: AsyncSessionLocal = AsyncSessionLocal):
+    """Функция для рассылки всем пользователям из базы данных, взятие ID происходит с помощью User.telegram_id"""
+
+    async with async_session_factory() as session:
+        stmt = select(User.telegram_id)
+        result = await session.execute(stmt)
+        return result.scalars().all()
 
 
 async def user_exists(telegram_id: int, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
@@ -95,8 +105,7 @@ async def select_to_table(telegram_id: int, async_session_factory: AsyncSessionL
             return {}
 
 
-async def add_admin(telegram_id: int,
-                    async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> Optional[Admins]:
+async def add_admin(telegram_id: int, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     """
     Функция на добавление Администратора
     :param telegram_id: Ожидается telegram_id пользователя, которому выдается роль Администратора
@@ -115,20 +124,20 @@ async def add_admin(telegram_id: int,
             await session.commit()
             await session.refresh(admin)
             logging.info(f'Администратор {telegram_id=} успешно добавлен!')
-            return admin
+            return True
 
         except SQLAlchemyError:
             await session.rollback()
-            logging.warning(f'Такой администратор уже находится в базе данных: {admin}')
+            logging.warning(f'Такой администратор уже находится в базе данных: {telegram_id=}')
+            return False
 
 
-async def remove_admin(telegram_id: int,
-                       async_session_factory: AsyncSessionLocal = AsyncSessionLocal):
+async def remove_admin(telegram_id: int, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     """
     Удаляет администратора из базы данных по telegram_id.
     :param telegram_id: ID администратора для удаления
     :param async_session_factory: Асинхронная фабрика сессий
-    :return: Удаленный объект администратора или None если не найден
+    :return: Если администратор успешно удален вернуть - True. Иначе - False
 
     Examples:
         await remove_admin(500)
@@ -144,11 +153,11 @@ async def remove_admin(telegram_id: int,
                 await session.delete(delete_user)
                 await session.commit()
                 logging.info(f'Пользователь с {telegram_id=} Успешно удален!')
-                return delete_user
+                return True
 
             else:
                 logging.warning(f"Администратор {telegram_id=} не найден")
-                return None
+                return False
 
         except SQLAlchemyError as e:
             await session.rollback()
@@ -172,7 +181,7 @@ async def get_admin_list(async_session_factory: AsyncSessionLocal = AsyncSession
     async with async_session_factory() as session:
         try:
 
-            stmt = select(Admins.telegram_id).where()
+            stmt = select(Admins.telegram_id)
             result = await session.execute(stmt)
             admin_ids = result.scalars().all()
 
@@ -182,7 +191,6 @@ async def get_admin_list(async_session_factory: AsyncSessionLocal = AsyncSession
                 logging.warning('В базе нет администраторов!')
 
             # Вернуть список администрации или пустой список
-
             return admin_ids
 
         except SQLAlchemyError as e:
@@ -316,10 +324,118 @@ async def load_group(async_session_factory: AsyncSessionLocal = AsyncSessionLoca
             return []
 
 
-async def main():
-    # await add_group({"username": 'sdfjd', "name": '345'})
-    # print(await load_group())
-    pass
+async def get_player_vip_panel(data: dict, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+    """
+    :param async_session_factory: Асинхронная фабрика сессий SQLAlchemy.
+    :param data:
+    [
+        {
+            "telegram_id": "telegram_id_user",
+            "name": "user_name"
+        }
+    ]
+    :return:
+        Возвращаем True если пользователь уже существует!
+        Возвращаем False если пользователь не существует!
 
 
-asyncio.run(main())
+
+    Examples:
+    1
+        await get_player_vip_panel({"telegram_id": 2, "name": '2345'})
+    """
+
+    try:
+        telegram_id = data.get("telegram_id")
+        async with async_session_factory() as session:
+            stmt = select(exists().where(Vip.telegram_id == telegram_id))
+            result = await session.execute(stmt)
+            search_user = result.scalar()
+
+            if search_user:
+                logging.info(f'Пользователь <data:{data}> найден!')
+                return True
+
+            else:
+                logging.error(f'Пользовать с <data:{data}> не найден!')
+                return False
+
+    except SQLAlchemyError as e:
+        logging.error(f'Ошибка БД: {e}')
+        await session.rollback()
+        return False
+
+
+async def add_new_user_vip_panel(data: dict, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+    """
+    :param async_session_factory: Асинхронная фабрика сессий SQLAlchemy.
+    :param data:
+    [
+        {
+            "telegram_id": "telegram_id_user",
+            "name": "user_name"
+        }
+    ]
+    :return:
+        Возвращаем True если пользователь добавлен в базу!
+        Возвращаем False если пользователь уже существует в базе!
+
+
+    Examples:
+    1
+        await add_new_user_vip_panel({"telegram_id": 5, "name": 2345})
+
+    """
+
+    async with async_session_factory() as session:
+        try:
+
+            # Получение данных пользователя
+            telegram_id = data.get("telegram_id")
+            name = data.get("name")
+
+            # Добавление пользователя в базу
+            player = Vip(telegram_id=telegram_id, name=name)
+            session.add(player)
+            await session.commit()
+
+            logging.info(f'Вип: <data:{data}> успешно добавлен в вип базу!')
+            return True
+
+        except SQLAlchemyError:
+            logging.error(f'Такой вип-пользователь уже существует! <data:{data}>')
+            return False
+
+
+async def delete_users_with_vip_panel_functions(data: dict, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+    async with async_session_factory() as session:
+        telegram_id = data.get("telegram_id")
+
+        try:
+            stmt = select(Vip).where(Vip.telegram_id == telegram_id)
+            result = await session.execute(stmt)
+            delete_user = result.scalar()
+
+            if delete_user:
+                await session.delete(delete_user)
+                await session.commit()
+
+                logging.info(f'Вип-Пользователь успешно удален! <data:{data}>')
+                return True
+
+            else:
+                logging.error(f'Вип-Пользователя с данными: <data:{data}> не удалось найти!')
+                await session.rollback()
+
+        except SQLAlchemyError:
+            pass
+
+# async def main():
+# await add_new_user_vip_panel({"telegram_id": 5, "name": 2345})
+# await get_player_vip_panel({"telegram_id": 10, "name": '234567'})
+# print(await delete_users_with_vip_panel_functions({"telegram_id": 1, "name": 2345}))
+# await get_chat_id()
+# pass
+
+
+# asyncio.run(main())

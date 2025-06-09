@@ -2,8 +2,8 @@ from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from States.state import *
 from database.crud import get_chat_id
+from States.state import NewsLetter
 
 router = Router()
 

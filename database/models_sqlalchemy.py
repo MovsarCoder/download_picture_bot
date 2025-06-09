@@ -19,6 +19,7 @@ class User(Base):
     def __repr__(self):
         return f"{self.id}, {self.username}, {self.fullname}, {self.firstname}, {self.lastname}, {self.telegram_id}, {self.registration_date}"
 
+
 class Groups(Base):
     __tablename__ = 'groups_list'
 
@@ -48,4 +49,4 @@ class Vip(Base):
     name = Column(String(120), nullable=True)
 
     def __repr__(self):
-        return f"<Vip(id={self.id}, name='{self.name}')>"
+        return f"id={self.id}, name={self.name}"

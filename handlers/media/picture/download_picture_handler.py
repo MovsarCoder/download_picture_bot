@@ -1,13 +1,14 @@
+import asyncio
+
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
-
-from handlers.media.picture.download_picture_func import get_product_info
-from keyboard.keyboard import more_keyboard
 from aiogram import F, Router
-import asyncio
-from States.state import *
+
+from keyboard.keyboard import more_keyboard
+from handlers.media.picture.download_picture_func import get_product_info
 from keyboard.keyboard_builder import make_row_inline_keyboards
+from States.state import Wildberries
 
 router = Router()
 
@@ -15,7 +16,7 @@ router = Router()
 @router.message(F.text == '🛍️ Информация о товаре')
 async def download_picture_func(message: Message, state: FSMContext):
     await message.answer('Вставьте ссылку или напишите артикул товара. Например: ```https://www.wildberries.ru/catalog/124302874/detail.aspx``` Или ```124302874``` ',
-                                  parse_mode=ParseMode.MARKDOWN)
+                         parse_mode=ParseMode.MARKDOWN)
     await state.set_state(Wildberries.download_picture)
 
 
@@ -74,7 +75,6 @@ async def download_picture_func_fsm(message: Message, state: FSMContext):
     except Exception as e:
         await message.answer(f'Ошибка: {e}! Проверьте валидность ссылки или что-то!')
         await state.clear()
-
 
 
 @router.callback_query(F.data == 'more_download_picture')

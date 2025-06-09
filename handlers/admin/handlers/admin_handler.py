@@ -1,14 +1,12 @@
-from curses.ascii import isdigit
-from os import remove
-
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
-from keyboard.keyboard import *
-from States.state import *
-from database.crud import *
+from aiogram.types import Message, CallbackQuery
+
 from keyboard.keyboard_builder import make_row_inline_keyboards
+from keyboard.keyboard import *
+from database.crud import *
+from States.state import AdminState, AddedVipPanel, DeleteVipPanel
 
 router = Router()
 
@@ -16,17 +14,20 @@ router = Router()
 @router.message(Command('admin_panel'))
 @router.message(F.text == '⚙️ Управление ботом')
 async def cmd_admin(callback_or_message: CallbackQuery | Message, state: FSMContext):
-    await state.clear()
     admin_users_list = get_admin_list()
+
     if callback_or_message.from_user.id in admin_users_list:
         if isinstance(callback_or_message, CallbackQuery):
             await callback_or_message.message.answer('❕Выберите действие', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
+
         elif isinstance(callback_or_message, Message):
             await callback_or_message.answer('❕Выберите действие', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
     else:
         await callback_or_message.answer(
             f'⚠️{callback_or_message.from_user.full_name}({callback_or_message.from_user.id}) вы не можете получить доступ к Admin функциям данного бота! Так как не являетесь Admin!')
+
+    await state.clear()
 
 
 @router.callback_query(F.data == 'new_admin_data')
