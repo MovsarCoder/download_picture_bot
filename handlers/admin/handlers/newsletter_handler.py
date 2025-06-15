@@ -4,8 +4,19 @@ from aiogram.fsm.context import FSMContext
 
 from database.crud import get_chat_id
 from States.state import NewsLetter
+from keyboard.keyboard import back_keyboard
+from keyboard.keyboard_builder import make_row_inline_keyboards
 
 router = Router()
+
+
+# Обработчик нажатия кнопки "broadcast_message"
+@router.callback_query(F.data == "broadcast_message")
+async def handle_broadcast_button(callback: CallbackQuery, state: FSMContext):
+    # Переход в состояние ввода текста или медиа для рассылки
+    await callback.answer()
+    await callback.message.answer("Введите текст или отправьте медиа для рассылки:", reply_markup=make_row_inline_keyboards(back_keyboard))
+    await state.set_state(NewsLetter.text)
 
 
 # Обработчик текстовых и медиа-сообщений в состоянии NewsLetter.text
@@ -59,12 +70,3 @@ async def send_broadcast(message: Message, state: FSMContext):
 
     # Завершаем состояние
     await state.clear()
-
-
-# Обработчик нажатия кнопки "broadcast_message"
-@router.callback_query(F.data == "broadcast_message")
-async def handle_broadcast_button(callback: CallbackQuery, state: FSMContext):
-    # Переход в состояние ввода текста или медиа для рассылки
-    await callback.answer()
-    await callback.message.answer("Введите текст или отправьте медиа для рассылки:")
-    await state.set_state(NewsLetter.text)
