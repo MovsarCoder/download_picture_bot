@@ -9,10 +9,11 @@ from States.state import DeleteVipPanel
 
 router = Router()
 
+
 @router.callback_query(F.data == 'delete_user_with_vip_panel')
 async def delete_user_vip_panel(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-    await callback.message.answer('Введите ID пользователя:')
+    await callback.message.answer('Введите ID пользователя:', reply_markup=make_row_inline_keyboards(back_keyboard))
     await state.set_state(DeleteVipPanel.get_id)
 
 
