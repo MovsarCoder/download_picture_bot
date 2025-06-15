@@ -13,7 +13,7 @@ router = Router()
 @router.callback_query(F.data == 'delete_group_data')
 async def remove_group_db_func(callback: CallbackQuery, state: FSMContext):
     await callback.answer('')
-    await callback.message.edit_text('Send username in the remove group/chanel (dont use "@")',
+    await callback.message.answer('Send username in the remove group/chanel (dont use "@")',
                                      reply_markup=make_row_inline_keyboards(back_keyboard))
     await state.set_state(AdminState.delete_group)
 
