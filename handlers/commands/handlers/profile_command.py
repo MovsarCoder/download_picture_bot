@@ -1,7 +1,7 @@
 from aiogram import F, Router
 from aiogram.types import Message
 
-from database.crud import select_to_table
+from database.crud_sqlalchemy import select_to_table
 
 from aiogram.filters import Command
 
@@ -12,7 +12,7 @@ router = Router()
 @router.message(F.text == 'ℹ️ Личная информация')
 async def personal_information_func(message: Message):
     id_user = message.from_user.id
-    get_id_user = select_to_table(id_user)
+    get_id_user = await select_to_table(id_user)
     get_id_user_info = {
         "id": get_id_user.get("id"),
         "username": get_id_user.get("username"),
@@ -26,16 +26,14 @@ async def personal_information_func(message: Message):
     send_info_message = f"""
     📊 Статистика пользователя\n
     
-    Подписка: "Стандарт"
+ℹ️ Личная информация по пользователю "{get_id_user_info.get("id")}" \n
     
-    ℹ️ Личная информация по пользователю "{get_id_user_info.get("id")}" \n
-    
-    👨 Имя аккаунта: {get_id_user_info.get("username")}
-    👨 Полное имя: {get_id_user_info.get("fullname")}
-    👨 Имя пользователя: {get_id_user_info.get("firstname")} 
-    👨 Фамилия пользователя (Если имеется): {get_id_user_info.get("lastname")}
-    👨 Ваш уникальный идентификатор Telegram (ID): {get_id_user_info.get("telegram_id")}
-    👨 Дата регистрации в боте: {get_id_user_info.get("sign_up_people")}
+👨 Имя аккаунта: {get_id_user_info.get("username")}
+👨 Полное имя: {get_id_user_info.get("fullname")}
+👨 Имя пользователя: {get_id_user_info.get("firstname")} 
+👨 Фамилия пользователя (Если имеется): {get_id_user_info.get("lastname")}
+👨 Ваш уникальный идентификатор Telegram (ID): {get_id_user_info.get("telegram_id")}
+👨 Дата регистрации в боте: {get_id_user_info.get("sign_up_people")}
     
     
     """

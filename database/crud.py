@@ -216,5 +216,5 @@ def get_chat_id():
         print(f"Ошибка при получении chat_id: {e}")
         return []
 
-    conn.close()
-
+    finally:
+        conn.close()

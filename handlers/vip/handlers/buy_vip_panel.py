@@ -5,7 +5,7 @@ from aiogram.types import Message, CallbackQuery
 from config.settings import PAYMENT_DETAILS, VIP_SUBSCRIPTION_PRICE, SENDING_RECEIPT, ADMIN
 from keyboard.keyboard import make_pay
 from States.state import BuyVipPanel
-from database.crud import add_new_user_vip_panel
+from database.crud_sqlalchemy import add_new_user_vip_panel
 
 router = Router()
 
@@ -171,7 +171,7 @@ async def accept_cheque_function(callback: CallbackQuery, state: FSMContext):
     }
 
     print(vip_panel_information)
-    if add_new_user_vip_panel(vip_panel_information):
+    if await add_new_user_vip_panel(vip_panel_information):
         await callback.message.answer('✅ Пользователь успешно добавлен в базу данных VIP!')
         await callback.bot.send_message(chat_id=parts[2], text=f"""
         🎉 <b>Оплата подтверждена!</b>
@@ -184,7 +184,7 @@ async def accept_cheque_function(callback: CallbackQuery, state: FSMContext):
 
         🛠️Связь с тех. оператором: {ADMIN}""")
     else:
-        await callback.message.answer('❌ Пользователь уже находится в базе данных!')
+        await callback.message.answer('❌Ошибка БД или Пользователь уже находится в базе данных!')
 
     await state.clear()
 

@@ -41,6 +41,9 @@ def create_tables():
     CREATE TABLE IF NOT EXISTS vip_panel (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         telegram_id INTEGER UNIQUE,
+        created_at TEXT,
+        status_vip TEXT,
+        number_of_days INTEGER, 
         name TEXT
     )""")
 

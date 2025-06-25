@@ -285,7 +285,7 @@ async def remove_group(username: str, async_session_factory: AsyncSessionLocal =
             logging.error(f"Ошибка БД при удалении {username=}: {str(e)}")
 
 
-async def load_group(async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> list[dict[str, str]]:
+async def load_groups(async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> list[dict[str, str]]:
     """
 
     :param async_session_factory: Асинхронная фабрика сессий SQLAlchemy.
@@ -402,10 +402,12 @@ async def add_new_user_vip_panel(data: dict, async_session_factory: AsyncSession
             logging.info(f'Вип: <data:{data}> успешно добавлен в вип базу!')
             return True
 
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
+            logging.error(f'Ошибка БД: {e}')
+            return False
+        except IntegrityError:
             logging.error(f'Такой вип-пользователь уже существует! <data:{data}>')
             return False
-
 
 async def delete_users_with_vip_panel_functions(data: dict, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     async with async_session_factory() as session:
@@ -431,10 +433,6 @@ async def delete_users_with_vip_panel_functions(data: dict, async_session_factor
             pass
 
 # async def main():
-# await add_new_user_vip_panel({"telegram_id": 5, "name": 2345})
-# await get_player_vip_panel({"telegram_id": 10, "name": '234567'})
-# print(await delete_users_with_vip_panel_functions({"telegram_id": 1, "name": 2345}))
-# await get_chat_id()
 # pass
 
 

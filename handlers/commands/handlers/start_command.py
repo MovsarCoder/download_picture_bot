@@ -4,7 +4,7 @@ from aiogram import Router
 from aiogram.fsm.context import FSMContext
 
 from keyboard.keyboard import *
-from database.crud import *
+from database.crud_sqlalchemy import write_user, get_admin_list, load_groups, user_exists
 from keyboard.keyboard_builder import make_row_keyboards
 
 router = Router()
@@ -14,7 +14,7 @@ async def handle_subscription_check(message: Message, groups):
     keyboard = []
     not_subscribed_channels = []
 
-    list_admins = get_admin_list()
+    list_admins = await get_admin_list()
     if message.from_user.id in list_admins:
         await message.answer('🌟 Добро пожаловать в нашего бота! 🌟 Мы рады, что вы с нами! 😊 \n\nЧтобы узнать больше о возможностях бота и удобных командах, просто нажмите /help. 📚\n\nА пока предлагаем вам воспользоваться нашим функционалом и убедиться, как мы можем сделать вашу жизнь проще и интереснее! 🚀\n\nЕсли возникнут вопросы, не стесняйтесь обращаться — мы всегда готовы помочь! 💬✨',
                              reply_markup=make_row_keyboards(keyboard_main_admin))
@@ -44,11 +44,11 @@ async def handle_subscription_check(message: Message, groups):
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
 
-    groups = load_groups()
-    a = user_exists(message.from_user.id)
+    groups = await load_groups()
+    a = await user_exists(message.from_user.id)
 
     if not a:
-        write_user(message.from_user.username, message.from_user.full_name, message.from_user.first_name, message.from_user.last_name, message.from_user.id)
+        await write_user(message.from_user.username, message.from_user.full_name, message.from_user.first_name, message.from_user.last_name, message.from_user.id)
         await handle_subscription_check(message, groups)
 
     else:

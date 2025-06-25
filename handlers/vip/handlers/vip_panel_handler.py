@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message
 
 from config.settings import ADMIN
-from database.crud import get_player_vip_panel
+from database.crud_sqlalchemy import get_player_vip_panel
 from keyboard.keyboard import show_vip_keyboard, buy_vip_panel_keyboard
 from keyboard.keyboard_builder import make_row_inline_keyboards
 
@@ -19,7 +19,7 @@ async def show_vip_keyboard_func(message: Message):
         'name': user_name
     }
 
-    checked_vip_list = get_player_vip_panel(user_info)
+    checked_vip_list = await get_player_vip_panel(user_info)
     if checked_vip_list:
         await message.answer('🎉 Добро пожаловать в VIP-панель! 🎉\n\nТеперь у вас есть доступ к эксклюзивным функциям и возможностям! 🌟\n\nВыберите функцию, которую хотите использовать:',
                              reply_markup=make_row_inline_keyboards(show_vip_keyboard))

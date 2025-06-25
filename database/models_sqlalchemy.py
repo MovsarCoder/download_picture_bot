@@ -1,9 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
-from sqlalchemy.orm import declarative_base
+from database.database_sqlalchemy import Base
 
-Base = declarative_base()
-
+# from sqlalchemy.orm import declarative_base
 
 class User(Base):
     __tablename__ = 'users'
@@ -46,7 +45,11 @@ class Vip(Base):
 
     id = Column(Integer, primary_key=True)
     telegram_id = Column(Integer, unique=True, nullable=False)
-    name = Column(String(120), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    status_vip = Column(String(120), nullable=False)
+    number_of_days = Column(Integer, nullable=False)
+    name = Column(String(120), nullable=False)
+
 
     def __repr__(self):
         return f"id={self.id}, name={self.name}"

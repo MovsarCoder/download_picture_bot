@@ -5,7 +5,6 @@ from aiogram.enums import ParseMode
 from aiogram.methods import DeleteWebhook
 from config.settings import TOKEN
 from aiogram import Bot, Dispatcher
-from database.models import create_tables
 from handlers import router
 
 
@@ -20,7 +19,6 @@ async def main():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     try:
-        create_tables()
         asyncio.run(main())
     except KeyboardInterrupt:
         print('Exit')
