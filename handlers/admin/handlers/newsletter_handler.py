@@ -2,7 +2,7 @@ from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from database.crud import get_chat_id
+from database.crud_sqlalchemy import get_chat_id
 from States.state import NewsLetter
 from keyboard.keyboard import back_keyboard
 from keyboard.keyboard_builder import make_row_inline_keyboards
@@ -22,7 +22,7 @@ async def handle_broadcast_button(callback: CallbackQuery, state: FSMContext):
 # Обработчик текстовых и медиа-сообщений в состоянии NewsLetter.text
 @router.message(NewsLetter.text, F.content_type.in_({"text", "photo", "video", "document"}))
 async def send_broadcast(message: Message, state: FSMContext):
-    users = get_chat_id()
+    users = await get_chat_id()
 
     success = 0
     failed = 0

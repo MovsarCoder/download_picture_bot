@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, Message
 from States.state import AdminState
 from keyboard.keyboard_builder import make_row_inline_keyboards
 from keyboard.keyboard import back_keyboard, admin_panel_keyboard
-from database.crud import add_group
+from database.crud_sqlalchemy import add_group
 
 router = Router()
 
@@ -37,7 +37,7 @@ async def fsm_add_new_group_name(message: Message, state: FSMContext):
     }
 
     # Если такая группа с таким Username присутствует, выводится данное сообщение.
-    if not add_group(group_data):
+    if not await add_group(group_data):
         await message.answer(f'⚠️Группа с таким username уже существует: {group_data["username"]}', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
         return False
 

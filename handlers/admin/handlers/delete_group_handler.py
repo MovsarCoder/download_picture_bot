@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from States.state import AdminState
-from database.crud import remove_group
+from database.crud_sqlalchemy import remove_group
 from keyboard.keyboard_builder import make_row_inline_keyboards
 from keyboard.keyboard import back_keyboard, admin_panel_keyboard
 
@@ -23,12 +23,9 @@ async def fsm_remove_group_db(message: Message, state: FSMContext):
     try:
         # Переменная для ловли сообщения от пользователя
         message_text = message.text
-        # Если с написанным пользователем Username присутствует, то она удалится.
-        remove_func = remove_group(message_text)
-        # Если функция remove_func возвращает True - группа удаляется и выводится сообщение
+        remove_func = await remove_group(message_text)
         if remove_func:
             await message.answer(f'✅Группа с Username: {message_text} успешно удалена!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
-        # Если такой группы нет.
         else:
             await message.answer('⚠️Невозможно найти группу с таким Username!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 

@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardBut
 
 from keyboard.keyboard_builder import make_row_inline_keyboards
 from keyboard.keyboard import admin_panel_keyboard
-from database.crud import load_groups
+from database.crud_sqlalchemy import load_groups
 
 router = Router()
 
@@ -11,7 +11,7 @@ router = Router()
 @router.callback_query(F.data == 'list_group_data')
 async def group_list_db(callback: CallbackQuery):
     await callback.answer('')
-    groups = load_groups()
+    groups = await load_groups()
     keyboard = []
 
     # если в JSON-файле нет никаких групп для подписки, выведется данное сообщение

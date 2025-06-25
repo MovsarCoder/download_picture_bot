@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, Message
 from keyboard.keyboard import back_keyboard, admin_panel_keyboard
 from keyboard.keyboard_builder import make_row_inline_keyboards
 from States.state import AdminState
-from database.crud import remove_admin
+from database.crud_sqlalchemy import remove_admin
 
 router = Router()
 
@@ -21,7 +21,7 @@ async def remove_admin_func(message: Message, state: FSMContext):
     telegram_id = message.text
     try:
         # Администратор успешно удален из базы данных.
-        if remove_admin(telegram_id):
+        if await remove_admin(int(telegram_id)):
             await message.answer(f'✅Пользователь с ID {telegram_id} был удален!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
         else:

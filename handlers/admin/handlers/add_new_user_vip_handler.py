@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery, Message
 
 from keyboard.keyboard import back_keyboard, admin_panel_keyboard
 from keyboard.keyboard_builder import make_row_inline_keyboards
-from database.crud import add_new_user_vip_panel
+from database.crud_sqlalchemy import add_new_user_vip_panel
 from States.state import AddedVipPanel
 
 router = Router()
@@ -33,7 +33,7 @@ async def get_name_vip_panel(message: Message, state: FSMContext):
         'name': data['add_vip_panel_name']
     }
 
-    if add_new_user_vip_panel(vip_panel_information):
+    if await add_new_user_vip_panel(vip_panel_information):
         await message.answer('✅Пользователь успешно был добавлен!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
 
     else:

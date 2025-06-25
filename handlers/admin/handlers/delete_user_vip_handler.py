@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery, Message
 
 from keyboard.keyboard import back_keyboard, admin_panel_keyboard
 from keyboard.keyboard_builder import make_row_inline_keyboards
-from database.crud import delete_users_with_vip_panel_functions
+from database.crud_sqlalchemy import delete_users_with_vip_panel_functions
 from States.state import DeleteVipPanel
 
 router = Router()
@@ -27,7 +27,7 @@ async def delete_user_vip_panel_fsm(message: Message, state: FSMContext):
         'name': user_name
     }
 
-    if delete_users_with_vip_panel_functions(data):
+    if await delete_users_with_vip_panel_functions(data):
         await message.answer('✅Человек успешно удален из списка Vip пользователей!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
     else:
         await message.answer('⚠️Такого пользователя нет в списке Vip пользователей!', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))

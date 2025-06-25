@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, Message
 from keyboard.keyboard import back_keyboard, admin_panel_keyboard
 from keyboard.keyboard_builder import make_row_inline_keyboards
 from States.state import AdminState
-from database.crud import add_admin
+from database.crud_sqlalchemy import add_admin
 
 router = Router()
 
@@ -20,7 +20,7 @@ async def new_admin_user_func(callback: CallbackQuery, state: FSMContext):
 async def add_admin_id(message: Message, state: FSMContext):
     telegram_id = message.text
     try:
-        if add_admin(telegram_id):
+        if await add_admin(int(telegram_id)):
             # Добавляем ID пользователя в список администраторов
             await message.answer(f'✅Пользователь с ID {telegram_id} добавлен как админ.', reply_markup=make_row_inline_keyboards(admin_panel_keyboard))
         else:
