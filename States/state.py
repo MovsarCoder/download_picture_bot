@@ -47,6 +47,8 @@ class BuyVipPanel(StatesGroup):
 class AddedVipPanel(StatesGroup):
     get_id = State()
     get_name = State()
+    number_of_days = State()
+    status_vip = State()
 
 
 class DeleteVipPanel(StatesGroup):

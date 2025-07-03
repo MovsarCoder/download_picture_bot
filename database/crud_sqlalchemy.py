@@ -1,6 +1,8 @@
 import asyncio
 import logging
 from typing import Optional
+
+from alembic.util import status
 from sqlalchemy import select, exists
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -373,7 +375,9 @@ async def add_new_user_vip_panel(data: dict, async_session_factory: AsyncSession
     [
         {
             "telegram_id": "telegram_id_user",
-            "name": "user_name"
+            "name": "user_name",
+            "number_of_days": "number_of_days_vip_panel",
+            "vip_status": name_vip
         }
     ]
     :return:
@@ -393,9 +397,11 @@ async def add_new_user_vip_panel(data: dict, async_session_factory: AsyncSession
             # Получение данных пользователя
             telegram_id = data.get("telegram_id")
             name = data.get("name")
+            number_of_days = data.get("number_of_days")
+            status_vip = data.get("vip_status")
 
             # Добавление пользователя в базу
-            player = Vip(telegram_id=telegram_id, name=name)
+            player = Vip(telegram_id=telegram_id, name=name, number_of_days=number_of_days, status_vip=status_vip)
             session.add(player)
             await session.commit()
 

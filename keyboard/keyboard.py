@@ -83,3 +83,10 @@ def make_pay(user_id, name=None) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text='❌Отменить оплату ', callback_data=f'cancel_cheque_{user_id}_{name}')],
     ]
     return InlineKeyboardMarkup(inline_keyboard=row)
+
+
+names_vip_panel = [
+    ('Стандарт'),
+    ('Стандарт +'),
+    ('Премиум')
+]
