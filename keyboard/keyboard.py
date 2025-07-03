@@ -78,10 +78,10 @@ accept_or_cancel_cheque = [
 ]
 
 
-def make_pay(user_id, name=None) -> InlineKeyboardMarkup:
+def make_pay(user_id, name, number_of_days, status_vip) -> InlineKeyboardMarkup:
     row = [
-        [InlineKeyboardButton(text='✅Подтвердить оплату ', callback_data=f'accept_cheque_{user_id}_{name}')],
-        [InlineKeyboardButton(text='❌Отменить оплату ', callback_data=f'cancel_cheque_{user_id}_{name}')],
+        [InlineKeyboardButton(text='✅Подтвердить оплату ', callback_data=f'accept_cheque_{user_id}_{name}_{number_of_days}_{status_vip}')],
+        [InlineKeyboardButton(text='❌Отменить оплату ', callback_data=f'cancel_cheque_{user_id}_{name}_{number_of_days}_{status_vip}')],
     ]
     return InlineKeyboardMarkup(inline_keyboard=row)
 
