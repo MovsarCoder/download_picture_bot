@@ -1,4 +1,6 @@
 from datetime import datetime
+from random import choice
+
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
@@ -116,6 +118,8 @@ async def send_receipt(message: Message, state: FSMContext):
     """
 
     username = message.from_user.username or None
+    number_of_days = 30
+    status_vip = 'Стандарт'
 
     for i in SENDING_RECEIPT:
         try:
@@ -126,24 +130,25 @@ async def send_receipt(message: Message, state: FSMContext):
                     chat_id=int(i),
                     photo=message.photo[-1].file_id,
                     caption=user_info,
-                    reply_markup=make_pay(message.from_user.id, username))
+                    reply_markup=make_pay(message.from_user.id, username, number_of_days, status_vip))
             elif message.video:
                  await message.bot.send_video(
                     chat_id=int(i),
                     video=message.video.file_id,
                     caption=user_info,
-                    reply_markup=make_pay(message.from_user.id, username))
+                    reply_markup=make_pay(message.from_user.id, username, number_of_days, status_vip))
             elif message.document:
                 await message.bot.send_document(
                     chat_id=int(i),
                     document=message.document.file_id,
                     caption=user_info,
-                    reply_markup=make_pay(message.from_user.id, username))
+                    reply_markup=make_pay(message.from_user.id, username, number_of_days, status_vip))
             else:
                 await message.answer('Ошибка неизвестного типа! (234567-4345)')
 
         except Exception as e:
             await message.answer(f"❌Не удалось отправить чек для проверки оплаты! - {e}\n\n🛠️Связь с тех. оператором: {ADMIN}")
+            return
 
     await message.bot.send_message(chat_id=message.from_user.id, text=f"""
     📨 <b>Ваш чек успешно получен!</b> 
@@ -163,13 +168,14 @@ async def send_receipt(message: Message, state: FSMContext):
 # Обработка подтверждения оплаты администратором
 @router.callback_query(F.data.startswith('accept_cheque'))
 async def accept_cheque_function(callback: CallbackQuery, state: FSMContext):
-    parts = callback.data.split('_', maxsplit=3)
+    parts = callback.data.split('_', maxsplit=5)
 
     vip_panel_information = {
         "telegram_id": parts[2],
-        "name": parts[3]
+        "name": parts[3],
+        "number_of_days": parts[4],
+        "status_vip": parts[5]
     }
-
     print(vip_panel_information)
     if await add_new_user_vip_panel(vip_panel_information):
         await callback.message.answer('✅ Пользователь успешно добавлен в базу данных VIP!')
@@ -192,7 +198,7 @@ async def accept_cheque_function(callback: CallbackQuery, state: FSMContext):
 # Обработка отмены оплаты администратором
 @router.callback_query(F.data.startswith('cancel_cheque'))
 async def cancel_cheque_function(callback: CallbackQuery, state: FSMContext):
-    parts = callback.data.split('_', maxsplit=3)
+    parts = callback.data.split('_', maxsplit=5)
 
     await callback.bot.send_message(chat_id=parts[2], text=f"""
     ❌ <b>Оплата не подтверждена</b>
