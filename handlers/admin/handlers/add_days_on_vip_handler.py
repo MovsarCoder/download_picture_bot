@@ -12,6 +12,8 @@ router = Router()
 
 @router.callback_query(F.data == 'add_days_on_vip_panel')
 async def add_days_on_vip_player_function(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await callback.answer()
     await callback.message.answer('Введите пожалуйста Telegram ID чтобы распознать человека.', reply_markup=make_row_inline_keyboards(back_keyboard))
     await state.set_state(AddDaysVipPanel.telegram_id)
 
