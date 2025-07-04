@@ -53,3 +53,8 @@ class AddedVipPanel(StatesGroup):
 
 class DeleteVipPanel(StatesGroup):
     get_id = State()
+
+
+class AddDaysVipPanel(StatesGroup):
+    telegram_id = State()
+    get_days = State()
