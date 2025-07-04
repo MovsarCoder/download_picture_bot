@@ -11,7 +11,8 @@ from .handlers.delete_group_handler import router as remove_group_handler
 from .handlers.list_group_handler import router as list_group_handler
 from .handlers.add_new_user_vip_handler import router as add_new_vip_user_handler
 from .handlers.delete_user_vip_handler import router as delete_user_vip_handler
-
+from .handlers.add_days_on_vip_handler import router as add_days_vip_handler
+from .handlers.remove_days_on_vip_handler import router as remove_days_on_vip_handler
 
 router.include_router(admin_handler)
 router.include_router(newsletter_handler)
@@ -22,6 +23,8 @@ router.include_router(remove_group_handler)
 router.include_router(list_group_handler)
 router.include_router(add_new_vip_user_handler)
 router.include_router(delete_user_vip_handler)
+router.include_router(add_days_vip_handler)
+router.include_router(remove_days_on_vip_handler)
 
 
 
