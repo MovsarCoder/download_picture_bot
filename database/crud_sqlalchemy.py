@@ -447,6 +447,11 @@ async def add_days_on_player_vip_panel(telegram_id: int, days: int, async_sessio
     :param days: Количество дней, которое будет добавлять пользователю
     :param async_session_factory: Асинхронная фабрика сессий SQLAlchemy.
     :return: True or False
+
+    Examples:
+    1:
+        await add_days_on_player_vip_panel(6155920970, -20)
+
     """
 
     async with async_session_factory() as session:
@@ -472,8 +477,54 @@ async def add_days_on_player_vip_panel(telegram_id: int, days: int, async_sessio
             return False
 
 
+async def remove_days_on_player_vip_panel(telegram_id: int, days: int, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+    """
+
+    :param telegram_id: Для взаимодействия с человеколм
+    :param days: Количество дней которое будет отнимать
+    :param async_session_factory: Асинхронная фабрика сессий SQLAlchemy.
+    :return:
+
+    Examples:
+    1:
+        await remove_days_on_player_vip_panel(6155920970, 20)
+    """
+
+    async with async_session_factory() as session:
+        try:
+
+            stmt = select(Vip).where(Vip.telegram_id == telegram_id)
+            get_info = await session.execute(stmt)
+            result = get_info.scalar_one_or_none()
+
+            if not result:
+                logging.warning(f"Пользователь не найден: telegram_id={telegram_id}")
+                return False
+
+            if days > 0:
+                result.number_of_days -= days
+                logging.info(f'Успешно! {days=} успешно отняты у {telegram_id=}')
+                await session.commit()
+                return True
+
+            else:
+                logging.error(f"Ошибка! Введите целое число!")
+                await session.rollback()
+                return False
+
+
+        except SQLAlchemyError as e:
+            logging.error(f"Ошибка БД! {e}")
+            await session.rollback()
+            return False
+
+        except IntegrityError as e:
+            logging.warning(f'Не удалось найти такого пользователя! Проверьте валидность данных.')
+            return False
+
 # async def main():
-#     await add_days_on_player_vip_panel(6155920970, -20)
-#
-#
+#     # await add_days_on_player_vip_panel(6155920970, -20)
+#     await remove_days_on_player_vip_panel(6155920970, 20)
+
+
 # asyncio.run(main())
