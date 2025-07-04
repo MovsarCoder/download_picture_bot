@@ -25,6 +25,8 @@ admin_panel_keyboard = [
     ("📂 Список групп", "list_group_data"),
     ("➕ Добавить VIP", "add_new_user_vip_panel"),
     ("➖ Удалить VIP", "delete_user_with_vip_panel"),
+    ("➕ Добавление дней VIP", "add_days_on_vip_panel"),
+    ("➖ Удаление дней VIP", "remove_days_on_vip_panel"),
     ("👥 Список админов", "database_list_admin_data"),
     ("🆔 Получить ID", "get_player_id"),
 ]

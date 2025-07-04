@@ -415,6 +415,7 @@ async def add_new_user_vip_panel(data: dict, async_session_factory: AsyncSession
             logging.error(f'Такой вип-пользователь уже существует! <data:{data}>')
             return False
 
+
 async def delete_users_with_vip_panel_functions(data: dict, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     async with async_session_factory() as session:
         telegram_id = data.get("telegram_id")
@@ -438,8 +439,41 @@ async def delete_users_with_vip_panel_functions(data: dict, async_session_factor
         except SQLAlchemyError:
             pass
 
+
+async def add_days_on_player_vip_panel(telegram_id: int, days: int, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+    """
+
+    :param telegram_id: Телеграмм ID пользователя, с которым будет взаимодействие
+    :param days: Количество дней, которое будет добавлять пользователю
+    :param async_session_factory: Асинхронная фабрика сессий SQLAlchemy.
+    :return: True or False
+    """
+
+    async with async_session_factory() as session:
+        try:
+            result = await session.scalar(select(Vip).where(Vip.telegram_id == telegram_id))
+            if not result:
+                logging.warning(f"Пользователь не найден: telegram_id={telegram_id}")
+                return False
+
+            if days > 0:
+                result.number_of_days += days
+                await session.commit()
+                logging.info(f"Добавлено {days} дней для telegram_id={telegram_id}")
+                return True
+            else:
+                logging.error('Ошибка! Введите целое число!')
+                await session.rollback()
+                return False
+
+        except Exception as e:
+            logging.error(f"Ошибка при добавлении дней VIP: {e}", exc_info=True)
+            await session.rollback()
+            return False
+
+
 # async def main():
-# pass
-
-
+#     await add_days_on_player_vip_panel(6155920970, -20)
+#
+#
 # asyncio.run(main())
