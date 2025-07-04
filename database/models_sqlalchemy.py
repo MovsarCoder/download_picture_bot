@@ -52,4 +52,4 @@ class Vip(Base):
 
 
     def __repr__(self):
-        return f"id={self.id}, name={self.name}"
+        return f"id={self.id}, telegram_id={self.telegram_id} status_vip={self.status_vip} number_of_days={self.number_of_days} name={self.name}"
