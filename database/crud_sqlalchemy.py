@@ -593,7 +593,6 @@ async def get_all_vip_panel_person_days(async_session_factory: AsyncSessionLocal
                 logging.info("Нет пользователей с активной Вип подпиской.")
                 return True
 
-
             # Количество людей у которых отняли дни
             affected_users = 0
             for vip in active_vips:
@@ -601,7 +600,6 @@ async def get_all_vip_panel_person_days(async_session_factory: AsyncSessionLocal
                 vip.number_of_days -= 1
                 # У скольких отнято дней
                 affected_users += 1
-
 
             await session.commit()
             logging.info(f'Успешно обновлено {affected_users} подписок. Отнято по 1 дню.')
