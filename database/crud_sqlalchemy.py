@@ -1,8 +1,7 @@
 import asyncio
 import logging
-from typing import Optional
+from typing import Optional, Any
 
-from alembic.util import status
 from sqlalchemy import select, exists
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -57,7 +56,8 @@ async def get_chat_id(async_session_factory: AsyncSessionLocal = AsyncSessionLoc
         return result.scalars().all()
 
 
-async def user_exists(telegram_id: int, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+async def user_exists(telegram_id: int,
+                      async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     """
     Функция на просмотр, есть ли пользователь с таким ID или нет.
     :param telegram_id: Ожидается telegram_id пользователя, по которому будем идти проверка, существует такой user или нет.
@@ -75,7 +75,8 @@ async def user_exists(telegram_id: int, async_session_factory: AsyncSessionLocal
         return result.scalar()
 
 
-async def select_to_table(telegram_id: int, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> Optional[dict]:
+async def select_to_table(telegram_id: int,
+                          async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> Optional[dict]:
     """
     Функция возвращает информацию о пользователе
     :param telegram_id: Ожидается telegram_id пользователя, по которому будет получаться вся информация из БД
@@ -107,7 +108,8 @@ async def select_to_table(telegram_id: int, async_session_factory: AsyncSessionL
             return {}
 
 
-async def add_admin(telegram_id: int, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+async def add_admin(telegram_id: int,
+                    async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     """
     Функция на добавление Администратора
     :param telegram_id: Ожидается telegram_id пользователя, которому выдается роль Администратора
@@ -134,7 +136,8 @@ async def add_admin(telegram_id: int, async_session_factory: AsyncSessionLocal =
             return False
 
 
-async def remove_admin(telegram_id: int, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+async def remove_admin(telegram_id: int,
+                       async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     """
     Удаляет администратора из базы данных по telegram_id.
     :param telegram_id: ID администратора для удаления
@@ -201,7 +204,8 @@ async def get_admin_list(async_session_factory: AsyncSessionLocal = AsyncSession
             return []
 
 
-async def add_group(info_group: dict[str, str], async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+async def add_group(info_group: dict[str, str],
+                    async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     """
     :param info_group: Словарь с данными группы {
         "username": Имя телеграм-канала (обязательно),
@@ -248,7 +252,8 @@ async def add_group(info_group: dict[str, str], async_session_factory: AsyncSess
             logging.error(f"Ошибка БД при добавлении группы <{username=}: {e}>")
 
 
-async def remove_group(username: str, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+async def remove_group(username: str,
+                       async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     """
     Функция по удалению канала телеграмм по username канала.
 
@@ -326,7 +331,8 @@ async def load_groups(async_session_factory: AsyncSessionLocal = AsyncSessionLoc
             return []
 
 
-async def get_player_vip_panel(data: dict, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+async def get_player_vip_panel(data: dict,
+                               async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     """
     :param async_session_factory: Асинхронная фабрика сессий SQLAlchemy.
     :param data:
@@ -368,7 +374,8 @@ async def get_player_vip_panel(data: dict, async_session_factory: AsyncSessionLo
         return False
 
 
-async def add_new_user_vip_panel(data: dict, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+async def add_new_user_vip_panel(data: dict,
+                                 async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     """
     :param async_session_factory: Асинхронная фабрика сессий SQLAlchemy.
     :param data:
@@ -416,7 +423,8 @@ async def add_new_user_vip_panel(data: dict, async_session_factory: AsyncSession
             return False
 
 
-async def delete_users_with_vip_panel_functions(data: dict, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+async def delete_users_with_vip_panel_functions(data: dict,
+                                                async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     async with async_session_factory() as session:
         telegram_id = data.get("telegram_id")
 
@@ -440,7 +448,9 @@ async def delete_users_with_vip_panel_functions(data: dict, async_session_factor
             pass
 
 
-async def add_days_on_player_vip_panel(telegram_id: int, days: int, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+async def add_days_on_player_vip_panel(telegram_id: int,
+                                       days: int,
+                                       async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     """
 
     :param telegram_id: Телеграмм ID пользователя, с которым будет взаимодействие
@@ -477,7 +487,9 @@ async def add_days_on_player_vip_panel(telegram_id: int, days: int, async_sessio
             return False
 
 
-async def remove_days_on_player_vip_panel(telegram_id: int, days: int, async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+async def remove_days_on_player_vip_panel(telegram_id: int,
+                                          days: int,
+                                          async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
     """
 
     :param telegram_id: Для взаимодействия с человеколм
@@ -508,7 +520,7 @@ async def remove_days_on_player_vip_panel(telegram_id: int, days: int, async_ses
                 return True
 
             else:
-                logging.error(f"Ошибка! Введите целое число!")
+                logging.error(f"Ошибка! Введите положительное число!")
                 await session.rollback()
                 return False
 
@@ -522,9 +534,96 @@ async def remove_days_on_player_vip_panel(telegram_id: int, days: int, async_ses
             logging.warning(f'Не удалось найти такого пользователя! Проверьте валидность данных.')
             return False
 
-# async def main():
-#     # await add_days_on_player_vip_panel(6155920970, -20)
-#     await remove_days_on_player_vip_panel(6155920970, 20)
+
+async def get_personal_information_vip_panel(telegram_id: int,
+                                             async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> Any:
+    """
+
+    :param telegram_id: По которому мы будем получать информацию про определенного пользователя
+    :param async_session_factory: Асинхронная фабрика сессий SQLAlchemy.
+    :return: Данные пользователя.
+    """
+
+    async with async_session_factory() as session:
+        stmt = select(Vip).where(Vip.telegram_id == telegram_id)
+        get_personal_information = await session.execute(stmt)
+        result = get_personal_information.scalar_one_or_none()
+        if result:
+            information = {
+                "id": result.id,
+                "telegram_id": result.telegram_id,
+                "created_at": result.created_at,
+                "status_vip": result.status_vip,
+                "number_of_days": result.number_of_days,
+                "name": result.name,
+            }
+            logging.info(f'Данные успешно получены! {result=}')
+            return information
+
+        else:
+            logging.error(f'Нет никакой информации про пользователя.')
+            return None
 
 
-# asyncio.run(main())
+async def get_all_vip_panel_person_days(async_session_factory: AsyncSessionLocal = AsyncSessionLocal):
+    """
+
+    Функция для Shedular.
+    Отнимает по 1 дню с количества дней подписки.
+    Каждый день в 00:00 по мск.
+
+
+    :param async_session_factory: Асинхронная фабрика сессий SQLAlchemy.
+    :return:
+
+
+    Examples:
+        await get_all_vio_panel_person_days()
+
+    """
+
+    async with async_session_factory() as session:
+        try:
+            # Получаем только пользователей с активной подпиской (>0 дней)
+            stmt = select(Vip).where(Vip.number_of_days > 0)
+            result = await session.execute(stmt)
+            active_vips = result.scalars().all()
+
+            if not active_vips:
+                logging.info("Нет пользователей с активной Вип подпиской.")
+                return True
+
+
+            # Количество людей у которых отняли дни
+            affected_users = 0
+            for vip in active_vips:
+                # Отнимаем по дню у каждого
+                vip.number_of_days -= 1
+                # У скольких отнято дней
+                affected_users += 1
+
+
+            await session.commit()
+            logging.info(f'Успешно обновлено {affected_users} подписок. Отнято по 1 дню.')
+            return affected_users
+
+
+
+
+        except SQLAlchemyError as e:
+            logging.error(f"Ошибка базы данных при обновлении подписок: {str(e)}", exc_info=True)
+            await session.rollback()
+            raise  # Пробрасываем исключение дальше для обработки в планировщике
+
+
+        except Exception as e:
+            logging.error(f'Неожиданная ошибка при обновлении подписок: {str(e)}', exc_info=True)
+            await session.rollback()
+            raise
+
+
+async def main():
+    await get_all_vip_panel_person_days()
+
+
+asyncio.run(main())
