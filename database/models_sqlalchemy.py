@@ -27,7 +27,8 @@ class Groups(Base):
     name = Column(String(120), nullable=False)
 
     def __repr__(self):
-        return f"id={self.id}, name='{self.name}')"
+        return (f"id={self.id}, "
+                f"name='{self.name}')")
 
 
 class Admins(Base):
@@ -52,4 +53,9 @@ class Vip(Base):
 
 
     def __repr__(self):
-        return f"id={self.id}, telegram_id={self.telegram_id} status_vip={self.status_vip} number_of_days={self.number_of_days} name={self.name}"
+        return (f"id={self.id}, "
+                f"telegram_id={self.telegram_id} "
+                f"created_at={self.created_at} "
+                f"status_vip={self.status_vip} "
+                f"number_of_days={self.number_of_days} "
+                f"name={self.name}")
