@@ -3,8 +3,9 @@ from aiogram.types import Message
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
 
+from config.settings import ADMIN
 from keyboard.keyboard import *
-from database.crud_sqlalchemy import write_user, get_admin_list, load_groups, user_exists
+from database.crud_sqlalchemy import write_user, get_admin_list, load_groups, user_exists, add_new_user_vip_panel
 from keyboard.keyboard_builder import make_row_keyboards
 
 router = Router()
@@ -15,9 +16,20 @@ async def handle_subscription_check(message: Message, groups):
     not_subscribed_channels = []
 
     list_admins = await get_admin_list()
+
     if message.from_user.id in list_admins:
-        await message.answer('🌟 Добро пожаловать в нашего бота! 🌟 Мы рады, что вы с нами! 😊 \n\nЧтобы узнать больше о возможностях бота и удобных командах, просто нажмите /help. 📚\n\nА пока предлагаем вам воспользоваться нашим функционалом и убедиться, как мы можем сделать вашу жизнь проще и интереснее! 🚀\n\nЕсли возникнут вопросы, не стесняйтесь обращаться — мы всегда готовы помочь! 💬✨',
-                             reply_markup=make_row_keyboards(keyboard_main_admin))
+        await message.answer(
+            "🌟 Добро пожаловать! 🌟\n\n"
+            "Рады видеть вас в нашем боте! 😊\n\n"
+            "🚀 Что вам доступно:\n"
+            "• Все команды — /help\n"
+            "• Вип-функции — /vip\n"
+            "• Поддержка — /support\n\n"
+            "💡 Совет: начните с команды /start — она покажет главные возможности.\n\n"
+            f"Все вопросы → {ADMIN}\n"
+            "Приятного использования! ✨",
+            reply_markup=make_row_keyboards(keyboard_main_admin)
+        )
         return
 
     for i in groups:
@@ -35,9 +47,22 @@ async def handle_subscription_check(message: Message, groups):
     if keyboard:  # Если есть каналы для подписки
         await message.answer('Подпишитесь на все каналы, чтобы продолжить пользоваться ботом!',
                              reply_markup=keyboard_subscribe)
+
     else:
-        await message.answer('🌟 Добро пожаловать в нашего бота! 🌟 Мы рады, что вы с нами! 😊 \n\nЧтобы узнать больше о возможностях бота и удобных командах, просто нажмите /help. 📚\n\nА пока предлагаем вам воспользоваться нашим функционалом и убедиться, как мы можем сделать вашу жизнь проще и интереснее! 🚀\n\nЕсли возникнут вопросы, не стесняйтесь обращаться — мы всегда готовы помочь! 💬✨',
-                             reply_markup=make_row_keyboards(keyboard_main))
+        await message.answer(
+            "🌟 Добро пожаловать! 🌟\n\n"
+            "Рады видеть вас в нашем боте! 😊\n\n"
+            "🚀 Что вам доступно:\n"
+            "• Все команды — /help\n"
+            "• Вип-функции — /vip\n"
+            "• Поддержка — /support\n\n"
+            "🎁 Для вас: бесплатный пробный доступ к Вип-панели!\n"
+            "Попробуйте premium-функции прямо сейчас — /vip\n\n"
+            "💡 Совет: начните с команды /start — она покажет главные возможности.\n\n"
+            f"Все вопросы → {ADMIN}\n"
+            "Приятного использования! ✨",
+            reply_markup=make_row_keyboards(keyboard_main)
+        )
 
 
 @router.message(CommandStart())
@@ -48,36 +73,19 @@ async def cmd_start(message: Message, state: FSMContext):
     a = await user_exists(message.from_user.id)
 
     if not a:
+        information_player_added_vip = {
+            "telegram_id": message.from_user.id,
+            "name": message.from_user.username,
+            "number_of_days": 3,  # Пробный период
+            "status_vip": "Стандарт"
+        }
+
+        await add_new_user_vip_panel(information_player_added_vip)
         await write_user(message.from_user.username, message.from_user.full_name, message.from_user.first_name, message.from_user.last_name, message.from_user.id)
         await handle_subscription_check(message, groups)
 
     else:
         await handle_subscription_check(message, groups)
-
-#
-# @router.callback_query(F.data == 'more_stop')
-# async def more_send_stop(callback: CallbackQuery, state: FSMContext):
-#     await state.clear()
-#     list_admins = get_admin_list()
-#     if callback.from_user.id in list_admins:
-#         await callback.message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main_admin))
-#     else:
-#         await callback.message.answer('Добро пожаловать в наш бот! Удобную информацию про наш бот вы можете посмотреть по команде /help.\n\nА пока воспользуйтесь нашим функционалом.', reply_markup=make_row_inline_keyboards(keyboard_main))
-#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # @router.callback_query(F.data == 'check_subscribes')
 # async def check_subscribes(callback_query: CallbackQuery):
