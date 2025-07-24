@@ -15,3 +15,5 @@
 1) SQLALCHEMY ORM
 2) AIOGRAM
 3) ALEMBIC
+
+# pip install apscheduler pytz sqlalchemy
