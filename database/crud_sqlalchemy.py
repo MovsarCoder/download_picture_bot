@@ -356,7 +356,9 @@ async def get_player_vip_panel(data: dict,
     try:
         telegram_id = data.get("telegram_id")
         async with async_session_factory() as session:
-            stmt = select(exists().where(Vip.telegram_id == telegram_id))
+            stmt = select(exists()
+                          .where(Vip.telegram_id == telegram_id)
+                          .where(Vip.number_of_days > 0))
             result = await session.execute(stmt)
             search_user = result.scalar()
 
@@ -565,10 +567,10 @@ async def get_personal_information_vip_panel(telegram_id: int,
             return None
 
 
-async def get_all_vip_panel_person_days(async_session_factory: AsyncSessionLocal = AsyncSessionLocal):
+async def decrement_vip_panel_days(async_session_factory: AsyncSessionLocal = AsyncSessionLocal):
     """
 
-    Функция для Shedular.
+    Функция для Scheduler.
     Отнимает по 1 дню с количества дней подписки.
     Каждый день в 00:00 по мск.
 
@@ -578,7 +580,7 @@ async def get_all_vip_panel_person_days(async_session_factory: AsyncSessionLocal
 
 
     Examples:
-        await get_all_vio_panel_person_days()
+        await decrement_vip_panel_days()
 
     """
 
@@ -620,8 +622,44 @@ async def get_all_vip_panel_person_days(async_session_factory: AsyncSessionLocal
             raise
 
 
+async def delete_user_vip_panel_where_less_then_0_days(async_session_factory: AsyncSessionLocal = AsyncSessionLocal) -> bool:
+    """
+    Удаляет пользователей VIP с истекшим сроком подписки (days <= 0)
+
+    :param async_session_factory: Асинхронная фабрика сессий SQLAlchemy.
+    :return:
+    """
+
+    async with async_session_factory() as session:
+        try:
+            stmt = select(Vip).where(Vip.number_of_days <= 0)
+            select_people = await session.execute(stmt)
+            result = select_people.scalars().all()
+
+            if not result:
+                logging.error(f"Нет пользователей с 0 и меньше дней!")
+                return False
+
+            # Удаляем всех найденных пользователей
+            for user in result:
+                await session.delete(user)
+
+            await session.commit()
+            logging.info(f"Успешно удалено {len(result)} пользователей VIP с истекшим сроком")
+
+
+        except SQLAlchemyError as e:
+            logging.error(f"Ошибка при удалении пользователей VIP: {str(e)}", exc_info=True)
+            await session.rollback()
+            return False
+        except Exception as e:
+            logging.error(f"Неожиданная ошибка: {str(e)}", exc_info=True)
+            await session.rollback()
+            return False
+
+
 async def main():
-    await get_all_vip_panel_person_days()
+    await delete_user_vip_panel_where_less_then_0_days()
 
 
 asyncio.run(main())
