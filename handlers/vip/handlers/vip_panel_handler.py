@@ -1,4 +1,5 @@
 from aiogram import Router, F
+from aiogram.filters import Command
 from aiogram.types import Message
 
 from config.settings import ADMIN
@@ -8,7 +9,7 @@ from keyboard.keyboard_builder import make_row_inline_keyboards
 
 router = Router()
 
-
+@router.message(Command("vip"))
 @router.message(F.text == '💎 VIP-доступ')
 async def show_vip_keyboard_func(message: Message):
     admin = ADMIN
